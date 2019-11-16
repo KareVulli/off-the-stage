@@ -37,7 +37,7 @@ export default class GameScene extends Phaser.Scene {
         ])
 
         const debugGraphics = this.add.graphics();
-        debugGraphics.lineStyle(2, 0xffffff, 1);
+        debugGraphics.lineStyle(2, 0x333333, 1);
 
         this.path.draw(debugGraphics, 64);
 
@@ -51,9 +51,10 @@ export default class GameScene extends Phaser.Scene {
             repeat: 4
         });
 
-        const weaponSlot = new WeaponSlot(this, 525, 300, this.enemies);
-        this.add.existing(weaponSlot);
-        weaponSlot.setWeapon();
+        this.add.existing(new WeaponSlot(this, 525, 300, this.enemies));
+        this.add.existing(new WeaponSlot(this, 200, 270, this.enemies));
+
+        // weaponSlot.setWeapon();
     }
 
     addEnemy(){

@@ -10,6 +10,7 @@ export default class BaseWeapon extends Phaser.GameObjects.Sprite {
         this.targets = [];
         this.lastFired = 0;
         this.enemies = enemiesGroup;
+
         this.projectile = Light;
         this.projectiles = scene.physics.add.group({
             classType: this.projectile,
@@ -17,17 +18,18 @@ export default class BaseWeapon extends Phaser.GameObjects.Sprite {
         });
 
         this.zone = scene.add.zone(this.x, this.y, this.range * 2, this.range * 2);
+        this.zone.setCircleDropZone(this.range);
         scene.physics.world.enable(this.zone)
         this.zone.body.setAllowGravity(false);
         this.zone.body.moves = false;
-        this.zone.setCircleDropZone(this.range);
+        this.zone.body.setCircle(this.range);
 
         scene.physics.add.overlap(enemiesGroup, this.zone, this.onOverlap, null, this);
         scene.physics.add.overlap(enemiesGroup, this.projectiles, this.onHit, null, this);
 
-        const debugGraphics = scene.add.graphics();
+        /* const debugGraphics = scene.add.graphics();
         debugGraphics.lineStyle(2, 0xaaaaaa, 1);
-        debugGraphics.strokeCircle(this.x, this.y, this.range)
+        debugGraphics.strokeCircle(this.x, this.y, this.range) */
     }
 
     onHit (enemy, projectile) {

@@ -17,6 +17,8 @@ export default class Light extends Phaser.GameObjects.Image {
 
     fire(direction) {
         this.scene.physics.velocityFromRotation(direction, 200, this.body.velocity);
+        // We want the projectile act as a point collision
+        this.body.setSize(1, 1, true);
         this.body.velocity.x *= this.speed;
         this.body.velocity.y *= this.speed;
         this.scene.time.addEvent({
