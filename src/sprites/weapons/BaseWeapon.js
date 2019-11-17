@@ -1,15 +1,23 @@
 import Light from "../projectiles/Light";
 
 export default class BaseWeapon extends Phaser.GameObjects.Sprite {
+    static upgrades = [
+        {damage: 10, firerate: 600, range: 100, price: 300}, // initial buy price
+        {damage: 15, firerate: 600, range: 110, price: 100},
+        {damage: 20, firerate: 500, range: 120, price: 100},
+        {damage: 25, firerate: 500, range: 130, price: 200},
+        {damage: 30, firerate: 400, range: 140, price: 200}
+    ]
     constructor(scene, x, y, enemiesGroup) {
         super(scene, x, y, 'sprite-weapon');
         scene.updates.add(this);
-        this.fireRate = 400;
-        this.damage = 25;
-        this.range = 100;
+        this.fireRate = 0;
+        this.damage = 0;
+        this.range = 0;
         this.targets = [];
         this.lastFired = 0;
         this.enemies = enemiesGroup;
+        this.level = 0;
 
         this.projectile = Light;
         this.projectiles = scene.physics.add.group({
@@ -18,11 +26,9 @@ export default class BaseWeapon extends Phaser.GameObjects.Sprite {
         });
 
         this.zone = scene.add.zone(this.x, this.y, this.range * 2, this.range * 2);
-        this.zone.setCircleDropZone(this.range);
         scene.physics.world.enable(this.zone)
         this.zone.body.setAllowGravity(false);
         this.zone.body.moves = false;
-        this.zone.body.setCircle(this.range);
 
         scene.physics.add.overlap(enemiesGroup, this.zone, this.onOverlap, null, this);
         scene.physics.add.overlap(enemiesGroup, this.projectiles, this.onHit, null, this);
@@ -30,12 +36,29 @@ export default class BaseWeapon extends Phaser.GameObjects.Sprite {
         /* const debugGraphics = scene.add.graphics();
         debugGraphics.lineStyle(2, 0xaaaaaa, 1);
         debugGraphics.strokeCircle(this.x, this.y, this.range) */
+        this.upgrade();
+    }
+
+    upgrade () {
+        if (this.level < this.constructor.upgrades.length) {
+            let newUpgrade = this.constructor.upgrades[this.level];
+            this.damage = newUpgrade.damage;
+            this.fireRate = newUpgrade.firerate;
+            this.range = newUpgrade.range;
+            this.zone.setSize(this.range * 2, this.range * 2);
+            this.zone.body.setCircle(this.range);
+            this.level++;
+            console.log('Weapon upgraded: ' + this.level)
+        }
+    }
+
+    getNextUpgradePrice () {
+        return this.constructor.upgrades[this.level].price;
     }
 
     onHit (enemy, projectile) {
-        console.log('onHit', enemy);
         if(enemy.damage(this.damage)) {
-            enemy.stopFollow();
+            this.scene.deathParticles.emitParticle(100, enemy.x, enemy.y);
             this.enemies.remove(enemy, true, true);
         }
         projectile.destroy();

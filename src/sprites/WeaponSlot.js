@@ -52,8 +52,9 @@ export default class WeaponSlot extends Phaser.GameObjects.Graphics {
 
     setWeapon () {
         if (this.weapon) {
-            this.weapon.destroy();
+            this.weapon.upgrade();
+        } else {
+            this.weapon = this.scene.add.existing(new BaseWeapon(this.scene, this.x, this.y, this.enemies));
         }
-        this.weapon = this.scene.add.existing(new BaseWeapon(this.scene, this.x, this.y, this.enemies));
     }
 }

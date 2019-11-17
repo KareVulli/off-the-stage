@@ -4,6 +4,7 @@ import generateLight from "../graphics/Light";
 import Enemy from "../sprites/Enemy";
 import WeaponSlot from "../sprites/WeaponSlot";
 import lightImage from "../assets/light.png";
+import DeathParticles from "../particles/DeathParticles";
 
 export default class GameScene extends Phaser.Scene {
     constructor() {
@@ -19,6 +20,8 @@ export default class GameScene extends Phaser.Scene {
     }
 
     create() {
+        this.deathParticles = new DeathParticles(this);
+        this.add.existing(this.deathParticles);
 
         this.enemies = this.physics.add.group({
             runChildUpdate: true,
@@ -29,11 +32,11 @@ export default class GameScene extends Phaser.Scene {
         console.log('hello');
 
         this.path = new Phaser.Curves.Spline([
-            700, 300,
-            500, 400,
-            400, 300,
-            200, 350,
-            100, 300
+            600, 600,
+            400, 500,
+            650, 400,
+            600, 300,
+            600, 50
         ])
 
         const debugGraphics = this.add.graphics();
@@ -45,33 +48,27 @@ export default class GameScene extends Phaser.Scene {
         this.updateLivesCounter()
 
         this.waveTimer = this.time.addEvent({
-            delay: 1000,
+            delay: 3000,
             callback: this.addEnemy,
             callbackScope: this,
-            repeat: 4
+            repeat: 5
         });
 
-        this.add.existing(new WeaponSlot(this, 525, 300, this.enemies));
-        this.add.existing(new WeaponSlot(this, 200, 270, this.enemies));
+        this.add.existing(new WeaponSlot(this, 600, 500, this.enemies));
+        this.add.existing(new WeaponSlot(this, 500, 350, this.enemies));
 
         // weaponSlot.setWeapon();
     }
 
     addEnemy(){
-        const enemy = new Enemy(this, this.path, 700, 300);
+        const enemy = new Enemy(this);
         this.enemies.add(enemy);
         this.add.existing(enemy);
-        enemy.startFollow({
-            duration: 5000,
-            repeat: 0,
-            rotateToPath: true,
-            onComplete: this.onEnemyPassed,
-            onCompleteScope: this,
-            onCompleteParams: [enemy]
-        });
+        enemy.followPath(this.path);
+        enemy.once('onReachedEnd', this.onEnemyPassed, this);
     }
 
-    onEnemyPassed(tween, targets, enemy) {
+    onEnemyPassed(enemy) {
         this.lives--;
         this.updateLivesCounter();
         enemy.destroy();
