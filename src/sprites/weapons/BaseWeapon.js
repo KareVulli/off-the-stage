@@ -58,7 +58,7 @@ export default class BaseWeapon extends Phaser.GameObjects.Sprite {
 
     onHit (enemy, projectile) {
         if(enemy.damage(this.damage)) {
-            this.scene.deathParticles.emitParticle(100, enemy.x, enemy.y);
+            this.scene.deathParticles.emitParticle(50, enemy.x, enemy.y);
             this.enemies.remove(enemy, true, true);
         }
         projectile.destroy();

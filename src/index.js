@@ -5,8 +5,8 @@ import PhaserUpdatePlugin from 'phaser-plugin-update'
 const config = {
     type: Phaser.AUTO,
     parent: "phaser-example",
-    width: 800,
-    height: 600,
+    width: 1366,
+    height: 768,
     physics: {
         default: 'arcade',
         arcade: {

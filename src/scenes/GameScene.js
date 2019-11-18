@@ -4,6 +4,9 @@ import generateLight from "../graphics/Light";
 import Enemy from "../sprites/Enemy";
 import WeaponSlot from "../sprites/WeaponSlot";
 import lightImage from "../assets/light.png";
+import bloodImage from "../assets/blood-splat.png";
+import backgroundImage from "../assets/background.png";
+import backgroundLightsImage from "../assets/background-lights.png";
 import DeathParticles from "../particles/DeathParticles";
 
 export default class GameScene extends Phaser.Scene {
@@ -17,9 +20,29 @@ export default class GameScene extends Phaser.Scene {
         generateWeaponSlot(this)
         generateLight(this)
         this.load.image('particle-light', lightImage);
+        this.load.image('particle-blood', bloodImage);
+        this.load.image('image-background', backgroundImage);
+        this.load.image('image-background-lights', backgroundLightsImage);
     }
 
     create() {
+        this.background = this.add.image(0, 0, 'image-background')
+        this.background.setOrigin(0, 0)
+        this.backgroundLights = this.add.image(0, 0, 'image-background-lights')
+        this.backgroundLights.setOrigin(0, 0)
+        this.backgroundLights.setDepth(1);
+        this.backgroundLights.setBlendMode('SCREEN');
+
+        var tween = this.tweens.add({
+            targets: this.backgroundLights,
+            alpha: 0.05,
+            duration: 100,
+            yoyo: true,
+            hold: 300,
+            repeat: -1,
+            repeatDelay: 1000
+        });
+
         this.deathParticles = new DeathParticles(this);
         this.add.existing(this.deathParticles);
 
@@ -32,11 +55,11 @@ export default class GameScene extends Phaser.Scene {
         console.log('hello');
 
         this.path = new Phaser.Curves.Spline([
-            600, 600,
-            400, 500,
-            650, 400,
-            600, 300,
-            600, 50
+            1360, 350, 
+            1000, 400, 
+            800, 300, 
+            500, 350, 
+            200, 350
         ])
 
         const debugGraphics = this.add.graphics();
@@ -54,8 +77,8 @@ export default class GameScene extends Phaser.Scene {
             repeat: 5
         });
 
-        this.add.existing(new WeaponSlot(this, 600, 500, this.enemies));
-        this.add.existing(new WeaponSlot(this, 500, 350, this.enemies));
+        this.add.existing(new WeaponSlot(this, 1200, 300, this.enemies));
+        this.add.existing(new WeaponSlot(this, 600, 400, this.enemies));
 
         // weaponSlot.setWeapon();
     }
