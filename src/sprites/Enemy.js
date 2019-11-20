@@ -4,7 +4,9 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, speed = 50, health = 100, x = 0, y = 0) {
         super(scene, x, y, 'sprite-enemy');
         this.speed = speed;
-        this.hp = new Healthbar(scene, x, y - 110, health);
+        this.hp = new Healthbar(scene, x, y, health);
+        
+        this.anims.play('enemy-walk');
     }
 
     followPath(path, resolution = 64) {
@@ -48,19 +50,19 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
         // How long will it take:
         maxTime = (distance / speed) * 1000;
 
-        var shortestAngle = Phaser.Math.Angle.ShortestBetween(this.angle, Phaser.Math.RadToDeg(angle));     
+        // var shortestAngle = Phaser.Math.Angle.ShortestBetween(this.angle, Phaser.Math.RadToDeg(angle));     
 
         this.moveTimer = this.scene.time.delayedCall(maxTime, this.moveToNextPoint, [], this); 
-        const angularVelocity = shortestAngle / (maxTime / 1000);
+        // const angularVelocity = shortestAngle / (maxTime / 1000);
 
-        this.setAngularVelocity(angularVelocity);
+        // this.setAngularVelocity(angularVelocity);
         this.setVelocityX(Math.cos(angle) * speed);
         this.setVelocityY(Math.sin(angle) * speed);
     }
 
     update(time, delta) {
         this.hp.x = this.x - 32;
-        this.hp.y = this.y - 50;
+        this.hp.y = this.y - 100;
         this.hp.draw();
     }
 

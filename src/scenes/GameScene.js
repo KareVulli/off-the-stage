@@ -1,9 +1,9 @@
-import generateEnemy from "../graphics/Enemy";
 import generateWeaponSlot from "../graphics/WeaponSlot";
 import generateLight from "../graphics/Light";
 import generateButton from "../graphics/Button";
 import Enemy from "../sprites/Enemy";
 import WeaponSlot from "../sprites/WeaponSlot";
+import enemyImage from "../assets/enemy.png";
 import lightImage from "../assets/light.png";
 import bloodImage from "../assets/blood-splat.png";
 import backgroundImage from "../assets/background.png";
@@ -40,7 +40,6 @@ export default class GameScene extends Phaser.Scene {
     }
 
     preload() {
-        generateEnemy(this)
         generateWeaponSlot(this)
         generateLight(this)
         generateButton(this)
@@ -48,13 +47,25 @@ export default class GameScene extends Phaser.Scene {
         this.load.image('particle-blood', bloodImage);
         this.load.image('image-background', backgroundImage);
         this.load.image('image-background-lights', backgroundLightsImage);
+        this.load.spritesheet('sprite-enemy', enemyImage, { frameWidth: 75, frameHeight: 100 });
+    }
+
+    createAnimations () {
+        this.anims.create({
+            key: 'enemy-walk',
+            frames: this.anims.generateFrameNumbers('sprite-enemy', { start: 0, end: 1 }),
+            frameRate: 3,
+            repeat: -1
+        });
     }
 
     create() {
-        this.background = this.add.image(0, 0, 'image-background')
-        this.background.setOrigin(0, 0)
-        this.backgroundLights = this.add.image(0, 0, 'image-background-lights')
-        this.backgroundLights.setOrigin(0, 0)
+        this.createAnimations();
+
+        this.background = this.add.image(0, 0, 'image-background');
+        this.background.setOrigin(0, 0);
+        this.backgroundLights = this.add.image(0, 0, 'image-background-lights');
+        this.backgroundLights.setOrigin(0, 0);
         this.backgroundLights.setDepth(1);
         this.backgroundLights.setBlendMode('SCREEN');
 
@@ -80,11 +91,11 @@ export default class GameScene extends Phaser.Scene {
         console.log('hello');
 
         this.path = new Phaser.Curves.Spline([
-            1360, 350, 
-            1000, 400, 
-            800, 300, 
-            500, 350, 
-            200, 350
+            -50, 350,
+            300, 350, 
+            500, 300, 
+            800, 400, 
+            1100, 350
         ])
 
         const debugGraphics = this.add.graphics();
@@ -95,8 +106,9 @@ export default class GameScene extends Phaser.Scene {
         this.healthText = this.add.text(20, 20)
         this.updateLivesCounter()
 
-        this.add.existing(new WeaponSlot(this, 1200, 300, this.enemies));
-        this.add.existing(new WeaponSlot(this, 600, 400, this.enemies));
+        this.add.existing(new WeaponSlot(this, 900, 270, this.enemies));
+        this.add.existing(new WeaponSlot(this, 500, 430, this.enemies));
+        this.add.existing(new WeaponSlot(this, 250, 230, this.enemies));
 
         const btnStartWave = new Button(this, 1200, 30, 'Start performance');
         btnStartWave.on('pointerup', this.onStartWaveClicked, this);
