@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import GameScene from "./scenes/GameScene";
+import RhythmScene from "./scenes/RhythmScene";
 import PhaserUpdatePlugin from 'phaser-plugin-update'
 
 const config = {
@@ -15,7 +16,8 @@ const config = {
         }
     },
     scene: [
-        GameScene
+        GameScene,
+        RhythmScene
     ],
     plugins: {
         scene: [{ key: 'updatePlugin', plugin: PhaserUpdatePlugin, mapping: 'updates' }]

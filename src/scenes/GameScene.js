@@ -117,6 +117,7 @@ export default class GameScene extends Phaser.Scene {
                 callbackScope: this,
                 args: [waveSettings]
             });
+            this.scene.launch('RhythmScene');
         }
     }
 
