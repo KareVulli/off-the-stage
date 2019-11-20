@@ -3,7 +3,7 @@ import GameScene from "./scenes/GameScene";
 import PhaserUpdatePlugin from 'phaser-plugin-update'
 
 const config = {
-    type: Phaser.AUTO,
+    type: Phaser.WEBGL,
     parent: "phaser-example",
     width: 1366,
     height: 768,
