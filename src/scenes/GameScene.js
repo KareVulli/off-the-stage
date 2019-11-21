@@ -17,6 +17,8 @@ import beatmapSampleAudio from '../assets/beatmaps/sample/audio.mp3';
 import beatmapSample from '../assets/beatmaps/sample/beatmap.json';
 import beatmap2Audio from '../assets/beatmaps/preserved-valkyria/audio.mp3';
 import beatmap2 from '../assets/beatmaps/preserved-valkyria/beatmap.json';
+import death1Sound from '../assets/sounds/death1.wav';
+import death2Sound from '../assets/sounds/death2.wav';
 
 export default class GameScene extends Phaser.Scene {
     static waves = [
@@ -64,6 +66,9 @@ export default class GameScene extends Phaser.Scene {
         this.load.image('image-background-lights-blue', backgroundLightsBlueImage);
         this.load.image('image-background-character', backgroundCharacterImage);
         this.load.spritesheet('sprite-enemy', enemyImage, { frameWidth: 75, frameHeight: 100 });
+        this.load.image('image-background-character', backgroundCharacterImage);
+        this.load.audio('audio-death', death1Sound);
+        this.load.audio('audio-death2', death2Sound);
     }
 
     createAnimations () {

@@ -69,6 +69,7 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     damage(damage) {        
         if (this.hp.decrease(damage)) {
             this.emit('onKilled', this);
+            this.scene.sound.play('audio-death' + (Math.random() > 0.5 ? '2' : ''));
             return true;
         }
         return false;
