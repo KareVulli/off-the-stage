@@ -6,19 +6,24 @@ import WeaponSlot from "../sprites/WeaponSlot";
 import enemyImage from "../assets/enemy.png";
 import lightImage from "../assets/light.png";
 import bloodImage from "../assets/blood-splat.png";
-import backgroundImage from "../assets/background.png";
-import backgroundLightsImage from "../assets/background-lights.png";
+import backgroundImage from "../assets/background/background-no-lights.png";
+import backgroundCharacterImage from "../assets/background/background-character.png";
+import backgroundLightsRedImage from "../assets/background/background-lights-red.png";
+import backgroundLightsGreenImage from "../assets/background/background-lights-green.png";
+import backgroundLightsBlueImage from "../assets/background/background-lights-blue.png";
 import DeathParticles from "../particles/DeathParticles";
 import Button from "../sprites/ui/Button";
 import beatmapSampleAudio from '../assets/beatmaps/sample/audio.mp3';
 import beatmapSample from '../assets/beatmaps/sample/beatmap.json';
+import beatmap2Audio from '../assets/beatmaps/preserved-valkyria/audio.mp3';
+import beatmap2 from '../assets/beatmaps/preserved-valkyria/beatmap.json';
 
 export default class GameScene extends Phaser.Scene {
     static waves = [
         {
             delay: 2000,
-            beatmap: beatmapSample,
-            beatmapAudio: beatmapSampleAudio
+            beatmap: beatmap2,
+            beatmapAudio: beatmap2Audio
         },
         {
             delay: 5500,
@@ -54,7 +59,10 @@ export default class GameScene extends Phaser.Scene {
         this.load.image('particle-light', lightImage);
         this.load.image('particle-blood', bloodImage);
         this.load.image('image-background', backgroundImage);
-        this.load.image('image-background-lights', backgroundLightsImage);
+        this.load.image('image-background-lights-red', backgroundLightsRedImage);
+        this.load.image('image-background-lights-green', backgroundLightsGreenImage);
+        this.load.image('image-background-lights-blue', backgroundLightsBlueImage);
+        this.load.image('image-background-character', backgroundCharacterImage);
         this.load.spritesheet('sprite-enemy', enemyImage, { frameWidth: 75, frameHeight: 100 });
     }
 
@@ -69,23 +77,7 @@ export default class GameScene extends Phaser.Scene {
 
     create() {
         this.createAnimations();
-
-        this.background = this.add.image(0, 0, 'image-background');
-        this.background.setOrigin(0, 0);
-        this.backgroundLights = this.add.image(0, 0, 'image-background-lights');
-        this.backgroundLights.setOrigin(0, 0);
-        this.backgroundLights.setDepth(1);
-        this.backgroundLights.setBlendMode('SCREEN');
-
-        var tween = this.tweens.add({
-            targets: this.backgroundLights,
-            alpha: 0.05,
-            duration: 100,
-            yoyo: true,
-            hold: 300,
-            repeat: -1,
-            repeatDelay: 1000
-        });
+        this.setupBackground();
 
         this.deathParticles = new DeathParticles(this);
         this.add.existing(this.deathParticles);
@@ -103,7 +95,7 @@ export default class GameScene extends Phaser.Scene {
             300, 350, 
             500, 300, 
             800, 400, 
-            1100, 350
+            1000, 370
         ])
 
         const debugGraphics = this.add.graphics();
@@ -114,15 +106,62 @@ export default class GameScene extends Phaser.Scene {
         this.healthText = this.add.text(20, 20)
         this.updateLivesCounter()
 
-        this.add.existing(new WeaponSlot(this, 900, 270, this.enemies));
+        this.add.existing(new WeaponSlot(this, 800, 270, this.enemies));
         this.add.existing(new WeaponSlot(this, 500, 430, this.enemies));
-        this.add.existing(new WeaponSlot(this, 250, 230, this.enemies));
+        this.add.existing(new WeaponSlot(this, 250, 250, this.enemies));
 
-        const btnStartWave = new Button(this, 1200, 30, 'Start performance');
-        btnStartWave.on('pointerup', this.onStartWaveClicked, this);
-        this.add.existing(btnStartWave);
+        this.btnStartWave = new Button(this, 1200, 700, 'Start performance');
+        this.btnStartWave.on('pointerup', this.onStartWaveClicked, this);
+        this.add.existing(this.btnStartWave);
 
         // weaponSlot.setWeapon();
+    }
+
+    
+    setupBackground() {
+        this.background = this.add.image(0, 0, 'image-background');
+        this.background.setOrigin(0, 0);
+        this.bgRed = this.add.image(950, 410, 'image-background-lights-red');
+        this.bgRed.setDepth(1);
+        this.bgRed.setBlendMode('SCREEN');
+        this.bgGreen = this.add.image(890, 370, 'image-background-lights-green');
+        this.bgGreen.setDepth(1);
+        this.bgGreen.setBlendMode('SCREEN');
+        this.bgBlue = this.add.image(1190, 270, 'image-background-lights-blue');
+        this.bgBlue.setDepth(1);
+        this.bgBlue.setBlendMode('SCREEN');
+
+        this.tweens.add({
+            targets: this.bgRed,
+            alpha: 0.05,
+            duration: 100,
+            yoyo: true,
+            hold: 300,
+            repeat: -1,
+            repeatDelay: 1000
+        });
+
+        this.tweens.add({
+            targets: this.bgGreen,
+            delay: 500,
+            alpha: 0.05,
+            duration: 300,
+            yoyo: true,
+            hold: 300,
+            repeat: -1,
+            repeatDelay: 500
+        });
+
+        this.tweens.add({
+            targets: this.bgBlue,
+            delay: 400,
+            alpha: 0.05,
+            duration: 100,
+            yoyo: true,
+            hold: 300,
+            repeat: -1,
+            repeatDelay: 500
+        });
     }
 
     onStartWaveClicked () {
@@ -132,6 +171,11 @@ export default class GameScene extends Phaser.Scene {
             this.scene.launch('RhythmScene', this.waveSettings);
             this.scene.get('RhythmScene').events.on('onGameStarted', this.onWaveStarted, this)
             this.scene.get('RhythmScene').events.on('onGameEnded', this.onWaveEnded, this)
+            this.tweens.add({
+                targets: [this.btnStartWave, this.btnStartWave.text],
+                alpha: 0,
+                duration: 100
+            })
         }
     }
 
@@ -146,10 +190,13 @@ export default class GameScene extends Phaser.Scene {
         });
     }
 
-    onWaveEnded(length) {
-        this.waveStartTime = this.time.now;
-        this.waveLength = length;
-        this.waveTimerActive = true;
+    onWaveEnded() {
+        this.tweens.add({
+            targets: [this.btnStartWave, this.btnStartWave.text],
+            alpha: 1,
+            duration: 500
+        })
+        this.scene.remove('RhythmScene');
     }
 
     addEnemy(){
@@ -160,7 +207,7 @@ export default class GameScene extends Phaser.Scene {
         enemy.once('onReachedEnd', this.onEnemyPassed, this);
         enemy.once('onKilled', this.onEnemyKilled, this);
         // console.log(`${this.time.now - this.waveStartTime} > ${this.waveLength} - 10000`)
-        if (this.time.now - this.waveStartTime < this.waveLength - 10000) {
+        if (this.time.now - this.waveStartTime < this.waveLength - 30000) {
             // console.log('timed event created');
             this.waveTimer = this.time.addEvent({
                 delay: this.waveSettings.delay,
@@ -191,7 +238,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     updateLivesCounter () {
-        this.healthText.setText(`Lives: ${this.lives} | Wave: ${this.wave} | Enemies left: ${this.enemiesLeft} | Wave timer active: ${this.waveTimerActive} | Wave active: ${this.waveActive}`)
+        this.healthText.setText(`Lives: ${this.lives} | Wave: ${this.wave} | Wave timer active: ${this.waveTimerActive} | Wave active: ${this.waveActive}`)
     }
 
     update(time, delta) {
