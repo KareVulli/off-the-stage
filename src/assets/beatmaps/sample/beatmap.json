@@ -4,19 +4,19 @@
     "artist": "Ice",
     "notes": [
         {
-            "time": 1000,
+            "time": 2000,
             "note": 0
         },
         {
-            "time": 2000,
+            "time": 3000,
             "note": 1
         },
         {
-            "time": 3000,
+            "time": 4000,
             "note": 2
         },
         {
-            "time": 4000,
+            "time": 5000,
             "note": 3
         }
     ]

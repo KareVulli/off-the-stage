@@ -10,33 +10,41 @@ import backgroundImage from "../assets/background.png";
 import backgroundLightsImage from "../assets/background-lights.png";
 import DeathParticles from "../particles/DeathParticles";
 import Button from "../sprites/ui/Button";
+import beatmapSampleAudio from '../assets/beatmaps/sample/audio.mp3';
+import beatmapSample from '../assets/beatmaps/sample/beatmap.json';
 
 export default class GameScene extends Phaser.Scene {
     static waves = [
         {
-            enemies: 4,
-            delay: 2000
+            delay: 2000,
+            beatmap: beatmapSample,
+            beatmapAudio: beatmapSampleAudio
         },
         {
-            enemies: 5,
-            delay: 5500
+            delay: 5500,
+            beatmap: beatmapSample,
+            beatmapAudio: beatmapSampleAudio
         },
         {
-            enemies: 6,
-            delay: 4500
+            delay: 4500,
+            beatmap: beatmapSample,
+            beatmapAudio: beatmapSampleAudio
         },
         {
-            enemies: 10,
-            delay: 3000
+            delay: 3000,
+            beatmap: beatmapSample,
+            beatmapAudio: beatmapSampleAudio
         }
     ]
     constructor() {
         super({key: 'GameScene'});
         this.lives = 3;
         this.wave = 0;
-        this.enemiesLeft = 0;
         this.waveActive = false;
         this.waveTimerActive = false;
+        this.waveStartTime = 0;
+        this.waveLength = 0;
+        this.waveSettings = null;
     }
 
     preload() {
@@ -119,35 +127,46 @@ export default class GameScene extends Phaser.Scene {
 
     onStartWaveClicked () {
         if (!this.waveActive) {
-            const waveSettings = GameScene.waves[this.wave++];
-            this.enemiesLeft = waveSettings.enemies;
+            this.waveSettings = GameScene.waves[this.wave++];
             this.waveActive = true;
-            this.waveTimerActive = true;
-            this.waveTimer = this.time.addEvent({
-                delay: waveSettings.delay,
-                callback: this.addEnemy,
-                callbackScope: this,
-                args: [waveSettings]
-            });
-            this.scene.launch('RhythmScene');
+            this.scene.launch('RhythmScene', this.waveSettings);
+            this.scene.get('RhythmScene').events.on('onGameStarted', this.onWaveStarted, this)
+            this.scene.get('RhythmScene').events.on('onGameEnded', this.onWaveEnded, this)
         }
     }
 
-    addEnemy(waveSettings){
+    onWaveStarted(length) {
+        this.waveStartTime = this.time.now;
+        this.waveLength = length;
+        this.waveTimerActive = true;
+        this.waveTimer = this.time.addEvent({
+            delay: this.waveSettings.delay,
+            callback: this.addEnemy,
+            callbackScope: this
+        });
+    }
+
+    onWaveEnded(length) {
+        this.waveStartTime = this.time.now;
+        this.waveLength = length;
+        this.waveTimerActive = true;
+    }
+
+    addEnemy(){
         const enemy = new Enemy(this);
         this.enemies.add(enemy);
         this.add.existing(enemy);
         enemy.followPath(this.path);
         enemy.once('onReachedEnd', this.onEnemyPassed, this);
         enemy.once('onKilled', this.onEnemyKilled, this);
-        if (this.enemiesLeft > 0) {
+        // console.log(`${this.time.now - this.waveStartTime} > ${this.waveLength} - 10000`)
+        if (this.time.now - this.waveStartTime < this.waveLength - 10000) {
+            // console.log('timed event created');
             this.waveTimer = this.time.addEvent({
-                delay: waveSettings.delay,
+                delay: this.waveSettings.delay,
                 callback: this.addEnemy,
-                callbackScope: this,
-                args: [waveSettings]
+                callbackScope: this
             });
-            this.enemiesLeft -= 1;
         } else {
             this.waveTimerActive = false;
         }
