@@ -1,4 +1,5 @@
 import BaseWeapon from "./weapons/BaseWeapon";
+import List from "./ui/List";
 
 export default class WeaponSlot extends Phaser.GameObjects.Graphics {
     constructor(scene, x, y, enemiesGroup) {
@@ -17,6 +18,8 @@ export default class WeaponSlot extends Phaser.GameObjects.Graphics {
         this.on('pointerout', this.onOut, this);
 
         this.onOut();
+
+        this.weaponMenu = new List(scene, x + 200, y, ['Hello', 'World']);
         
     }
 
