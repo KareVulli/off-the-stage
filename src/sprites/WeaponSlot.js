@@ -2,6 +2,9 @@ import BaseWeapon from "./weapons/BaseWeapon";
 import List from "./ui/List";
 
 export default class WeaponSlot extends Phaser.GameObjects.Graphics {
+    static weapons = [
+        BaseWeapon
+    ]
     constructor(scene, x, y, enemiesGroup) {
         super(scene, {x: x, y: y});
         this.enemies = enemiesGroup;
@@ -19,12 +22,66 @@ export default class WeaponSlot extends Phaser.GameObjects.Graphics {
 
         this.onOut();
 
-        this.weaponMenu = new List(scene, x + 200, y, ['Hello', 'World']);
+        this.upgradeMenu = new List(scene, x + 160, y, this.buildUpgradeMenu(), true);
+        this.upgradeMenu.on('onItemClicked', this.onUpgradeWeapon, this);
+        scene.add.existing(this.upgradeMenu);
         
+        this.weaponMenu = new List(scene, x + 160, y, this.buildWeaponMenu(), true);
+        this.weaponMenu.on('onItemClicked', this.onWeaponSelected, this);
+        scene.add.existing(this.weaponMenu);
+
+    }
+
+    buildWeaponMenu () {
+        let menuItems = [];
+        for (let i = 0; i < WeaponSlot.weapons.length; i++) {
+            const weapon = WeaponSlot.weapons[i];
+            menuItems.push(
+                {
+                    key: weapon.key,
+                    title: `${weapon.name} - ${weapon.getBuyPrice()} $`,
+                    price: weapon.getBuyPrice()
+                }
+            );
+        }
+        return menuItems;
+    }
+
+    buildUpgradeMenu () {
+        let menuItems = [
+            {
+                key: 'UPGRADE',
+                title: ''
+            },
+            {
+                key: 'SELL',
+                title: 'Sell [not implemented]'
+            }
+        ];
+        return menuItems;
+    }
+
+    updateUpgradeMenuItem() {
+        const nextUpgrade = this.weapon.getNextUpgrade();
+        if (!nextUpgrade) {
+            this.upgradeMenu.updateItem('UPGRADE', {
+                key: 'UPGRADE',
+                title: `Upgrades maxed`
+            })
+        } else {
+            this.upgradeMenu.updateItem('UPGRADE', {
+                key: 'UPGRADE',
+                title: `Upgrade [${nextUpgrade.level}] - ${nextUpgrade.price} $`
+            })
+        }
     }
 
     onMouseUp () {
-        this.setWeapon();
+        if (!this.weapon) {
+            this.weaponMenu.toggle();
+        } else {
+            this.upgradeMenu.toggle();
+        }
         this.onOver();
     }
 
@@ -53,11 +110,27 @@ export default class WeaponSlot extends Phaser.GameObjects.Graphics {
 
     }
 
-    setWeapon () {
-        if (this.weapon) {
-            this.weapon.upgrade();
-        } else {
-            this.weapon = this.scene.add.existing(new BaseWeapon(this.scene, this.x, this.y, this.enemies));
+    onWeaponSelected(item) {
+        switch (item.key) {
+            case 'WEAPON_LIGHT':
+                this.setWeapon()
+                break;
+            default:
+                console.log('Invalid weapon');
+                break;
         }
+        this.weaponMenu.close();
+    }
+
+    onUpgradeWeapon () {
+        this.weapon.upgrade();
+        this.updateUpgradeMenuItem();
+        // this.upgradeMenu.close();
+    }
+
+    setWeapon () {
+        console.log('setWeapon()');
+        this.weapon = this.scene.add.existing(new BaseWeapon(this.scene, this.x, this.y, this.enemies));
+        this.updateUpgradeMenuItem();
     }
 }

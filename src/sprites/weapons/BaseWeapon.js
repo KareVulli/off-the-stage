@@ -8,6 +8,11 @@ export default class BaseWeapon extends Phaser.GameObjects.Sprite {
         {damage: 25, firerate: 500, range: 130, price: 200},
         {damage: 30, firerate: 400, range: 140, price: 200}
     ]
+    static key = 'WEAPON_LIGHT';
+    static name = 'Stage light';
+    static getBuyPrice () {
+        return this.upgrades[0].price;
+    }
     constructor(scene, x, y, enemiesGroup) {
         super(scene, x, y, 'sprite-weapon');
         scene.updates.add(this);
@@ -52,8 +57,12 @@ export default class BaseWeapon extends Phaser.GameObjects.Sprite {
         }
     }
 
-    getNextUpgradePrice () {
-        return this.constructor.upgrades[this.level].price;
+    getNextUpgrade () {
+        if (this.level === this.constructor.upgrades.length) {
+            return null;
+        }
+        let upgrade = {level: this.level, ...this.constructor.upgrades[this.level]}
+        return upgrade;
     }
 
     onHit (enemy, projectile) {

@@ -55,9 +55,10 @@ export default class GameScene extends Phaser.Scene {
     }
 
     preload() {
-        generateWeaponSlot(this)
-        generateLight(this)
-        generateButton(this)
+        generateWeaponSlot(this);
+        generateLight(this);
+        generateButton(this);
+        generateButton(this, 220, 35, 'list-item');
         this.load.image('particle-light', lightImage);
         this.load.image('particle-blood', bloodImage);
         this.load.image('image-background', backgroundImage);
