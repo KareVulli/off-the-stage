@@ -1,24 +1,13 @@
-import generateWeaponSlot from "../graphics/WeaponSlot";
-import generateLight from "../graphics/Light";
-import generateButton from "../graphics/Button";
 import Enemy from "../sprites/Enemy";
 import WeaponSlot from "../sprites/WeaponSlot";
-import enemyImage from "../assets/enemy.png";
-import lightImage from "../assets/light.png";
-import bloodImage from "../assets/blood-splat.png";
-import backgroundImage from "../assets/background/background-no-lights.png";
-import backgroundCharacterImage from "../assets/background/background-character.png";
-import backgroundLightsRedImage from "../assets/background/background-lights-red.png";
-import backgroundLightsGreenImage from "../assets/background/background-lights-green.png";
-import backgroundLightsBlueImage from "../assets/background/background-lights-blue.png";
 import DeathParticles from "../particles/DeathParticles";
 import Button from "../sprites/ui/Button";
 import beatmapSampleAudio from '../assets/beatmaps/sample/audio.mp3';
 import beatmapSample from '../assets/beatmaps/sample/beatmap.json';
 import beatmap2Audio from '../assets/beatmaps/preserved-valkyria/audio.mp3';
 import beatmap2 from '../assets/beatmaps/preserved-valkyria/beatmap.json';
-import death1Sound from '../assets/sounds/death1.wav';
-import death2Sound from '../assets/sounds/death2.wav';
+import Money from "../money";
+import Text from "../sprites/ui/Text";
 
 export default class GameScene extends Phaser.Scene {
     static waves = [
@@ -55,21 +44,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     preload() {
-        generateWeaponSlot(this);
-        generateLight(this);
-        generateButton(this);
-        generateButton(this, 220, 35, 'list-item');
-        this.load.image('particle-light', lightImage);
-        this.load.image('particle-blood', bloodImage);
-        this.load.image('image-background', backgroundImage);
-        this.load.image('image-background-lights-red', backgroundLightsRedImage);
-        this.load.image('image-background-lights-green', backgroundLightsGreenImage);
-        this.load.image('image-background-lights-blue', backgroundLightsBlueImage);
-        this.load.image('image-background-character', backgroundCharacterImage);
-        this.load.spritesheet('sprite-enemy', enemyImage, { frameWidth: 75, frameHeight: 100 });
-        this.load.image('image-background-character', backgroundCharacterImage);
-        this.load.audio('audio-death', death1Sound);
-        this.load.audio('audio-death2', death2Sound);
+
     }
 
     createAnimations () {
@@ -84,6 +59,7 @@ export default class GameScene extends Phaser.Scene {
     create() {
         this.createAnimations();
         this.setupBackground();
+        this.money = new Money(this);
 
         this.deathParticles = new DeathParticles(this);
         this.add.existing(this.deathParticles);
@@ -109,12 +85,12 @@ export default class GameScene extends Phaser.Scene {
 
         this.path.draw(debugGraphics, 64);
 
-        this.healthText = this.add.text(20, 20)
-        this.updateLivesCounter()
+        this.healthText = this.add.existing(new Text(this, 20, 20));
+        this.updateLivesCounter();
 
-        this.add.existing(new WeaponSlot(this, 800, 270, this.enemies));
-        this.add.existing(new WeaponSlot(this, 500, 430, this.enemies));
-        this.add.existing(new WeaponSlot(this, 250, 250, this.enemies));
+        this.add.existing(new WeaponSlot(this, 800, 270, this.enemies, this.money));
+        this.add.existing(new WeaponSlot(this, 500, 430, this.enemies, this.money));
+        this.add.existing(new WeaponSlot(this, 250, 250, this.enemies, this.money));
 
         this.btnStartWave = new Button(this, 1200, 700, 'Start performance');
         this.btnStartWave.on('pointerup', this.onStartWaveClicked, this);
@@ -174,7 +150,10 @@ export default class GameScene extends Phaser.Scene {
         if (!this.waveActive) {
             this.waveSettings = GameScene.waves[this.wave++];
             this.waveActive = true;
-            this.scene.launch('RhythmScene', this.waveSettings);
+            this.scene.launch('RhythmScene', {
+                waveSettings: this.waveSettings,
+                money: this.money
+            });
             this.scene.get('RhythmScene').events.on('onGameStarted', this.onWaveStarted, this)
             this.scene.get('RhythmScene').events.on('onGameEnded', this.onWaveEnded, this)
             this.tweens.add({
@@ -182,6 +161,8 @@ export default class GameScene extends Phaser.Scene {
                 alpha: 0,
                 duration: 100
             })
+            // Close any open dropdowns
+            this.events.emit('closeLists');
         }
     }
 
@@ -244,7 +225,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     updateLivesCounter () {
-        this.healthText.setText(`Lives: ${this.lives} | Wave: ${this.wave} | Wave timer active: ${this.waveTimerActive} | Wave active: ${this.waveActive}`)
+        this.healthText.setText(`Lives: ${this.lives} | Money: ${this.money.getMoney()} | Wave: ${this.wave} | Wave timer active: ${this.waveTimerActive} | Wave active: ${this.waveActive}`)
     }
 
     update(time, delta) {

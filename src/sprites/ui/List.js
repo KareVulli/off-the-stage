@@ -11,10 +11,10 @@ export default class List extends Phaser.GameObjects.Container {
             this.show = true;
         }
 
-        for (let i = 0; i < items.length; i++) {
-            const item = items[i];
-            this.addItem(item);
-        }
+        this.addItems(items);
+
+        scene.events.on('listShown', this.onListShown, this);
+        scene.events.on('closeLists', this.onCloseLists, this);
     }
 
     addItem(item) {
@@ -22,6 +22,20 @@ export default class List extends Phaser.GameObjects.Container {
         button.on('onClicked', this.onItemClicked, this);
         this.scene.add.existing(button);
         this.add(button);
+    }
+
+    addItems(items) {
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            this.addItem(item);
+        }
+    }
+
+    updateItems(items) {
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            this.updateItem(item.key, item);
+        }
     }
 
     updateItem(key, item) {
@@ -33,10 +47,22 @@ export default class List extends Phaser.GameObjects.Container {
         this.emit('onItemClicked', item);
     }
 
+    onListShown(list) {
+        if (list !== this) {
+            this.close();
+        }
+    }
+
+    onCloseLists() {
+        this.close();
+    }
+
     toggle() {
         if (this.show) {
+            this.scene.events.emit('listClosed', this);
             this.close();
         } else {
+            this.scene.events.emit('listShown', this);
             this.open();
         }
     }

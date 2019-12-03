@@ -5,16 +5,19 @@ export default class WeaponSlot extends Phaser.GameObjects.Graphics {
     static weapons = [
         BaseWeapon
     ]
-    constructor(scene, x, y, enemiesGroup) {
+    constructor(scene, x, y, enemiesGroup, money) {
         super(scene, {x: x, y: y});
         this.enemies = enemiesGroup;
         this.weapon = null;
+        this.money = money;
         this.setInteractive({ 
             hitArea: new Phaser.Geom.Circle(0, 0, 32),
             hitAreaCallback: Phaser.Geom.Circle.Contains,
             useHandCursor: true
         });
 
+        this.money.events.on('moneyUsed', this.onMoneyChanged, this);
+        this.money.events.on('moneyAdded', this.onMoneyChanged, this);
         this.on('pointerdown', this.onMouseDown, this);
         this.on('pointerup', this.onMouseUp, this);
         this.on('pointerover', this.onOver, this)
@@ -32,6 +35,14 @@ export default class WeaponSlot extends Phaser.GameObjects.Graphics {
 
     }
 
+    onMoneyChanged() {
+        if (this.weapon === null) {
+            this.weaponMenu.updateItems(this.buildWeaponMenu());
+        } else {
+            this.updateUpgradeMenuItem();
+        }
+    }
+
     buildWeaponMenu () {
         let menuItems = [];
         for (let i = 0; i < WeaponSlot.weapons.length; i++) {
@@ -40,7 +51,8 @@ export default class WeaponSlot extends Phaser.GameObjects.Graphics {
                 {
                     key: weapon.key,
                     title: `${weapon.name} - ${weapon.getBuyPrice()} $`,
-                    price: weapon.getBuyPrice()
+                    price: weapon.getBuyPrice(),
+                    enabled: this.money.getMoney() >= weapon.getBuyPrice()
                 }
             );
         }
@@ -55,7 +67,8 @@ export default class WeaponSlot extends Phaser.GameObjects.Graphics {
             },
             {
                 key: 'SELL',
-                title: 'Sell [not implemented]'
+                title: 'Sell [not implemented]',
+                enabled: false
             }
         ];
         return menuItems;
@@ -66,12 +79,14 @@ export default class WeaponSlot extends Phaser.GameObjects.Graphics {
         if (!nextUpgrade) {
             this.upgradeMenu.updateItem('UPGRADE', {
                 key: 'UPGRADE',
-                title: `Upgrades maxed`
+                title: `Upgrades maxed`,
+                enabled: false
             })
         } else {
             this.upgradeMenu.updateItem('UPGRADE', {
                 key: 'UPGRADE',
-                title: `Upgrade [${nextUpgrade.level}] - ${nextUpgrade.price} $`
+                title: `Upgrade [${nextUpgrade.level}] - ${nextUpgrade.price} $`,
+                enabled: this.money.getMoney() >= nextUpgrade.price
             })
         }
     }
@@ -123,13 +138,14 @@ export default class WeaponSlot extends Phaser.GameObjects.Graphics {
     }
 
     onUpgradeWeapon () {
-        this.weapon.upgrade();
+        this.weapon.upgrade(this.money);
         this.updateUpgradeMenuItem();
         // this.upgradeMenu.close();
     }
 
     setWeapon () {
         console.log('setWeapon()');
+        this.money.use(BaseWeapon.getBuyPrice());
         this.weapon = this.scene.add.existing(new BaseWeapon(this.scene, this.x, this.y, this.enemies));
         this.updateUpgradeMenuItem();
     }

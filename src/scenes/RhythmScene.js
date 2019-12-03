@@ -1,5 +1,6 @@
 import backgroundImage from '../assets/rhythm-background.png';
 import noteImage from '../assets/rhythm-note.png';
+import activeNoteImage from '../assets/rhythm-note-active.png';
 import hitSound from '../assets/sounds/HitSound.mp3';
 import hitSound2 from '../assets/sounds/HitSound2.mp3';
 import generateHitLine from "../graphics/HitLine";
@@ -17,7 +18,8 @@ export default class RhythmScene extends Phaser.Scene {
 
     init(data) {
         console.log('RhythmScene init()');
-        this.waveSettings = data;
+        this.money = data.money
+        this.waveSettings = data.waveSettings;
         this.combo = 0;
         this.nextNotes = [0, 0, 0, 0];
     }
@@ -26,8 +28,8 @@ export default class RhythmScene extends Phaser.Scene {
         console.log('RhythmScene preload()');
         generateHitLine(this);
         this.load.image('image-rhythm-background', backgroundImage);
-        this.load.image('image-rhythm-background', backgroundImage);
         this.load.image('image-rhythm-note', noteImage);
+        this.load.image('image-rhythm-active-note', activeNoteImage);
         this.load.json('json-beatmap', this.waveSettings.beatmap);
         this.load.audio('audio-beatmap', this.waveSettings.beatmapAudio);
         this.load.audio('audio-hitsound', hitSound);
@@ -87,6 +89,7 @@ export default class RhythmScene extends Phaser.Scene {
             x: 1197,
             y: 500,
             text: '',
+            font: 'Palanquin Dark',
             style: {
                 fontSize: '64px',
                 color: '#ffffff',
@@ -122,6 +125,7 @@ export default class RhythmScene extends Phaser.Scene {
             scale: {from: 1.2, to: 1},
             duration: 100
         });
+        this.money.add(Math.floor(0.1 * this.combo));
         console.log('onHit');
     }
 
@@ -141,7 +145,7 @@ export default class RhythmScene extends Phaser.Scene {
         const keyUp = Phaser.Input.Keyboard.JustUp(this.keys[index]);
         
         if (keyDown) {
-            this.keySprites[index].setAlpha(1);
+            this.keySprites[index].show();
             if (index > 0 && index < 3) {
                 this.sound.play('audio-hitsound2');
             } else {
@@ -149,7 +153,7 @@ export default class RhythmScene extends Phaser.Scene {
             }
             console.log('key ', index,' down');
         } else if (keyUp) {
-            this.keySprites[index].setAlpha(0);
+            this.keySprites[index].hide();
         }
         for (let i = this.nextNotes[index]; i < this.rowNotes.length; i++) {
             const note = this.rowNotes[i];

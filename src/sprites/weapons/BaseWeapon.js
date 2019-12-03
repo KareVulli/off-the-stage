@@ -44,16 +44,20 @@ export default class BaseWeapon extends Phaser.GameObjects.Sprite {
         this.upgrade();
     }
 
-    upgrade () {
+    upgrade (money) {
         if (this.level < this.constructor.upgrades.length) {
             let newUpgrade = this.constructor.upgrades[this.level];
-            this.damage = newUpgrade.damage;
-            this.fireRate = newUpgrade.firerate;
-            this.range = newUpgrade.range;
-            this.zone.setSize(this.range * 2, this.range * 2);
-            this.zone.body.setCircle(this.range);
-            this.level++;
-            console.log('Weapon upgraded: ' + this.level)
+            if (!money || money.use(newUpgrade.price)) {
+                this.damage = newUpgrade.damage;
+                this.fireRate = newUpgrade.firerate;
+                this.range = newUpgrade.range;
+                this.zone.setSize(this.range * 2, this.range * 2);
+                this.zone.body.setCircle(this.range);
+                this.level++;
+                console.log('Weapon upgraded: ' + this.level)
+            } else {
+                console.log('Not enough money to upgrade to level ' + this.level)
+            }
         }
     }
 

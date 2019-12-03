@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import LoadingScene from "./scenes/LoadingScene";
 import GameScene from "./scenes/GameScene";
 import RhythmScene from "./scenes/RhythmScene";
 import PhaserUpdatePlugin from 'phaser-plugin-update'
@@ -16,6 +17,7 @@ const config = {
         }
     },
     scene: [
+        LoadingScene,
         GameScene,
         RhythmScene
     ],

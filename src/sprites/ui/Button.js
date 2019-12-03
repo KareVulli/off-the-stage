@@ -1,3 +1,5 @@
+import Text from "./Text";
+
 export default class Button extends Phaser.GameObjects.Container {
     constructor(scene, x, y, text = '') {
         super(scene, x, y);
@@ -7,7 +9,7 @@ export default class Button extends Phaser.GameObjects.Container {
         this.background = this.createBackground();
         this.add(this.background);
 
-        this.text = scene.add.text(0, 0, text);
+        this.text = scene.add.existing(new Text(this.scene, 0, 0, text));
         this.text.setDepth(1);
         this.text.setOrigin(0.5, 0.5);
         this.add(this.text);
