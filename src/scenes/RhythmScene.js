@@ -6,6 +6,7 @@ import hitSound2 from '../assets/sounds/HitSound2.mp3';
 import generateHitLine from "../graphics/HitLine";
 import Note from '../sprites/Note';
 import Key from '../sprites/Key';
+import Text from '../sprites/ui/Text';
 
 export default class RhythmScene extends Phaser.Scene {
     constructor() {
@@ -39,7 +40,8 @@ export default class RhythmScene extends Phaser.Scene {
     create() {
         console.log('RhythmScene create()')
         
-        this.debugText = this.add.text(20, 40)
+        this.debugText = new Text(this, 20, 40);
+        this.add.existing(this.debugText);
 
         this.background = this.add.image(1366 - 420, 0, 'image-rhythm-background');
         this.background.setOrigin(0, 0);
@@ -89,7 +91,7 @@ export default class RhythmScene extends Phaser.Scene {
             x: 1197,
             y: 500,
             text: '',
-            font: 'Palanquin Dark',
+            fontFamily: 'Palanquin Dark',
             style: {
                 fontSize: '64px',
                 color: '#ffffff',
@@ -98,6 +100,22 @@ export default class RhythmScene extends Phaser.Scene {
             add: true
         })
         this.comboText.setOrigin(0.5, 0.5);
+
+        this.scene.get('GameScene').events.on('onWaveLost', this.onWaveLost, this);
+    }
+
+    onWaveLost() {
+        this.add.tween({
+            targets: this.music,
+            rate: 0,
+            duration: 2000,
+            onComplete: () => {
+                this.music.stop()
+                this.scene.stop();
+            },
+            onCompleteScope: this
+        })
+        
     }
 
     onFadedIn() {

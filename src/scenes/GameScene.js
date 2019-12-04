@@ -12,35 +12,32 @@ import Text from "../sprites/ui/Text";
 export default class GameScene extends Phaser.Scene {
     static waves = [
         {
-            delay: 2000,
+            delay: 500,
             beatmap: beatmap2,
-            beatmapAudio: beatmap2Audio
+            beatmapAudio: beatmap2Audio,
+            enemySpeed: 500
         },
         {
             delay: 5500,
             beatmap: beatmapSample,
-            beatmapAudio: beatmapSampleAudio
+            beatmapAudio: beatmapSampleAudio,
+            enemySpeed: 50
         },
         {
             delay: 4500,
             beatmap: beatmapSample,
-            beatmapAudio: beatmapSampleAudio
+            beatmapAudio: beatmapSampleAudio,
+            enemySpeed: 75
         },
         {
             delay: 3000,
             beatmap: beatmapSample,
-            beatmapAudio: beatmapSampleAudio
+            beatmapAudio: beatmapSampleAudio,
+            enemySpeed: 100
         }
     ]
     constructor() {
         super({key: 'GameScene'});
-        this.lives = 3;
-        this.wave = 0;
-        this.waveActive = false;
-        this.waveTimerActive = false;
-        this.waveStartTime = 0;
-        this.waveLength = 0;
-        this.waveSettings = null;
     }
 
     preload() {
@@ -56,7 +53,18 @@ export default class GameScene extends Phaser.Scene {
         });
     }
 
+    reset() {
+        this.lives = 3;
+        this.wave = 0;
+        this.waveActive = false;
+        this.waveTimerActive = false;
+        this.waveStartTime = 0;
+        this.waveLength = 0;
+        this.waveSettings = null;
+    }
+
     create() {
+        this.reset();
         this.createAnimations();
         this.setupBackground();
         this.money = new Money(this);
@@ -85,7 +93,8 @@ export default class GameScene extends Phaser.Scene {
 
         this.path.draw(debugGraphics, 64);
 
-        this.healthText = this.add.existing(new Text(this, 20, 20));
+        this.healthText = this.add.existing(new Text(this, 40, 20, '', {fontSize: '24px'}));
+        this.waveText = this.add.existing(new Text(this, 40, 700, 'Wave: 0', {fontSize: '24px'}));
         this.updateLivesCounter();
 
         this.add.existing(new WeaponSlot(this, 800, 270, this.enemies, this.money));
@@ -183,11 +192,11 @@ export default class GameScene extends Phaser.Scene {
             alpha: 1,
             duration: 500
         })
-        this.scene.remove('RhythmScene');
+        this.scene.stop('RhythmScene');
     }
 
     addEnemy(){
-        const enemy = new Enemy(this);
+        const enemy = new Enemy(this, this.waveSettings.enemySpeed);
         this.enemies.add(enemy);
         this.add.existing(enemy);
         enemy.followPath(this.path);
@@ -211,6 +220,11 @@ export default class GameScene extends Phaser.Scene {
         this.updateLivesCounter();
         this.updateWaveStatus();
         this.enemies.remove(enemy, true, true);
+        if(this.lives <= 0) {
+            this.events.emit('onWaveLost');
+            this.scene.launch('GameOverScene');
+            this.scene.pause();
+        }
     }
 
     onEnemyKilled(enemy) {
@@ -225,7 +239,8 @@ export default class GameScene extends Phaser.Scene {
     }
 
     updateLivesCounter () {
-        this.healthText.setText(`Lives: ${this.lives} | Money: ${this.money.getMoney()} | Wave: ${this.wave} | Wave timer active: ${this.waveTimerActive} | Wave active: ${this.waveActive}`)
+        this.waveText.setText(`Wave ${this.wave} / ${GameScene.waves.length}`);
+        this.healthText.setText(`Lives: ${this.lives} | Money: ${this.money.getMoney()}`)
     }
 
     update(time, delta) {

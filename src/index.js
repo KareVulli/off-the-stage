@@ -1,8 +1,9 @@
 import Phaser from "phaser";
+import PhaserUpdatePlugin from 'phaser-plugin-update'
 import LoadingScene from "./scenes/LoadingScene";
 import GameScene from "./scenes/GameScene";
 import RhythmScene from "./scenes/RhythmScene";
-import PhaserUpdatePlugin from 'phaser-plugin-update'
+import GameOverScene from "./scenes/GameOverScene";
 
 const config = {
     type: Phaser.WEBGL,
@@ -19,7 +20,8 @@ const config = {
     scene: [
         LoadingScene,
         GameScene,
-        RhythmScene
+        RhythmScene,
+        GameOverScene
     ],
     plugins: {
         scene: [{ key: 'updatePlugin', plugin: PhaserUpdatePlugin, mapping: 'updates' }]
