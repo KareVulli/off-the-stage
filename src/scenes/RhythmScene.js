@@ -4,9 +4,10 @@ import activeNoteImage from '../assets/rhythm-note-active.png';
 import hitSound from '../assets/sounds/HitSound.mp3';
 import hitSound2 from '../assets/sounds/HitSound2.mp3';
 import generateHitLine from "../graphics/HitLine";
-import Note from '../sprites/Note';
+import Note, { NOTE_MISSED, NOTE_HIT, NOTE_ADD_COMBO } from '../sprites/notes/Note';
 import Key from '../sprites/Key';
 import Text from '../sprites/ui/Text';
+import SliderNote from '../sprites/notes/SliderNote';
 
 export default class RhythmScene extends Phaser.Scene {
     constructor() {
@@ -23,10 +24,12 @@ export default class RhythmScene extends Phaser.Scene {
         this.waveSettings = data.waveSettings;
         this.combo = 0;
         this.nextNotes = [0, 0, 0, 0];
+        console.log(this.waveSettings)
     }
 
     preload() {
         console.log('RhythmScene preload()');
+        console.log(this.waveSettings);
         generateHitLine(this);
         this.load.image('image-rhythm-background', backgroundImage);
         this.load.image('image-rhythm-note', noteImage);
@@ -40,8 +43,8 @@ export default class RhythmScene extends Phaser.Scene {
     create() {
         console.log('RhythmScene create()')
         
-        this.debugText = new Text(this, 20, 40);
-        this.add.existing(this.debugText);
+        // this.debugText = new Text(this, 20, 40);
+        // this.add.existing(this.debugText);
 
         this.background = this.add.image(1366 - 420, 0, 'image-rhythm-background');
         this.background.setOrigin(0, 0);
@@ -67,7 +70,12 @@ export default class RhythmScene extends Phaser.Scene {
         this.music.on('complete', this.onMusicComplete, this);
         for (let i = 0; i < this.beatmap.notes.length; i++) {
             const note = this.beatmap.notes[i];
-            const sprite = new Note(this, note, this.timeframe, this.music);
+            let sprite;
+            if (note.endTime !== undefined) {
+                sprite = new SliderNote(this, note, this.timeframe, this.music);
+            } else {
+                sprite = new Note(this, note, this.timeframe, this.music);
+            }
             note.sprite = sprite;
             this.notes[note.note].push(note);
             this.notesGroup.add(sprite, true);
@@ -87,21 +95,13 @@ export default class RhythmScene extends Phaser.Scene {
         }
 
         
-        this.comboText = this.make.text({
-            x: 1197,
-            y: 500,
-            text: '',
-            fontFamily: 'Palanquin Dark',
-            style: {
-                fontSize: '64px',
-                color: '#ffffff',
-                align: 'center'
-            },
-            add: true
-        })
+        this.comboText = new Text(this, 1197, 500);
+        this.comboText.setFontSize('64px');
+        this.comboText.setAlign('center');
         this.comboText.setOrigin(0.5, 0.5);
+        this.add.existing(this.comboText);
 
-        this.scene.get('GameScene').events.on('onWaveLost', this.onWaveLost, this);
+        this.scene.get('GameScene').events.once('onWaveLost', this.onWaveLost, this);
     }
 
     onWaveLost() {
@@ -110,8 +110,8 @@ export default class RhythmScene extends Phaser.Scene {
             rate: 0,
             duration: 2000,
             onComplete: () => {
-                this.music.stop()
-                this.scene.stop();
+                console.log('onWaveLost onComplete()');
+                this.stopAndRecreateScene();
             },
             onCompleteScope: this
         })
@@ -126,7 +126,19 @@ export default class RhythmScene extends Phaser.Scene {
     }
 
     onMusicComplete() {
+        console.log('onMusicComplete()');
         this.events.emit('onGameEnded');
+        this.stopAndRecreateScene();
+    }
+
+    stopAndRecreateScene() {
+        this.music.destroy();
+        this.cache.audio.remove('audio-beatmap');
+        this.cache.json.remove('json-beatmap');
+        const sceneManager = this.scene;
+        sceneManager.get('GameScene').events.off('onWaveLost', this.onWaveLost, this);
+        sceneManager.stop('RhythmScene');
+        sceneManager.remove('RhythmScene');
     }
 
     getSongTime() {
@@ -143,7 +155,7 @@ export default class RhythmScene extends Phaser.Scene {
             scale: {from: 1.2, to: 1},
             duration: 100
         });
-        this.money.add(Math.floor(0.1 * this.combo));
+        this.money.add(Math.floor(0.05 * this.combo));
         console.log('onHit');
     }
 
@@ -154,6 +166,7 @@ export default class RhythmScene extends Phaser.Scene {
             alpha: 0,
             duration: 100
         });
+        note.sprite.onMiss();
         console.log('onMiss');
     }
 
@@ -175,19 +188,19 @@ export default class RhythmScene extends Phaser.Scene {
         }
         for (let i = this.nextNotes[index]; i < this.rowNotes.length; i++) {
             const note = this.rowNotes[i];
-            if (this.getSongTime() - this.badHitWindow > note.time) {
-                console.log(`${this.getSongTime()} - ${this.badHitWindow} > ${note.time}`)
-                console.log('Miss')
+            const state = note.sprite.check(this.getSongTime(), this.badHitWindow, keyDown, keyUp);
+            if (state === NOTE_MISSED) {
                 this.onMiss(note);
                 this.nextNotes[index]++;
                 continue;
-            } else if (keyDown) {
-                if (this.getSongTime() + this.badHitWindow > note.time) {
-                    console.log('Hit')
-                    this.onHit(note);
-                    this.nextNotes[index]++;
-                    break;
-                }
+            } else if (state === NOTE_HIT) {
+                this.onHit(note);
+                this.nextNotes[index]++;
+                break;
+            } else if (state === NOTE_ADD_COMBO) {
+                // Register a hit, but continue to check the same note next update
+                this.onHit(note);
+                break;
             } else {
                 break;
             }
@@ -195,7 +208,7 @@ export default class RhythmScene extends Phaser.Scene {
     }
 
     update(time, delta) {
-        this.debugText.setText(`combo: ${this.combo} time: ${Math.round(this.music.seek * 1000)}`);
+        // this.debugText.setText(`combo: ${this.combo} time: ${Math.round(this.music.seek * 1000)}`);
         for (let i = 0; i < 4; i++) {
             this.checkNotesRow(i);
         }

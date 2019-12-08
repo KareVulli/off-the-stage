@@ -12,6 +12,10 @@ import backgroundLightsBlueImage from "../assets/background/background-lights-bl
 import disabledButtonImage from '../assets/button-disabled.png';
 import death1Sound from '../assets/sounds/death1.wav';
 import death2Sound from '../assets/sounds/death2.wav';
+import fire1Sound from '../assets/sounds/Shoot1.mp3';
+import fire2Sound from '../assets/sounds/Shoot2.mp3';
+import fire3Sound from '../assets/sounds/Shoot3.mp3';
+import backgroundSound from '../assets/sounds/chillSong.mp3';
 
 export default class LoadingScene extends Phaser.Scene {
     constructor() {
@@ -54,6 +58,10 @@ export default class LoadingScene extends Phaser.Scene {
 
         this.load.audio('audio-death', death1Sound);
         this.load.audio('audio-death2', death2Sound);
+        this.load.audio('audio-fire1', fire1Sound);
+        this.load.audio('audio-fire2', fire2Sound);
+        this.load.audio('audio-fire3', fire3Sound);
+        this.load.audio('audio-background', backgroundSound);
 
         this.load.script('webfont', 'https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js');
     }

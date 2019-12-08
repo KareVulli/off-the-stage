@@ -20,7 +20,6 @@ const config = {
     scene: [
         LoadingScene,
         GameScene,
-        RhythmScene,
         GameOverScene
     ],
     plugins: {

@@ -6,28 +6,32 @@ import beatmapSampleAudio from '../assets/beatmaps/sample/audio.mp3';
 import beatmapSample from '../assets/beatmaps/sample/beatmap.json';
 import beatmap2Audio from '../assets/beatmaps/preserved-valkyria/audio.mp3';
 import beatmap2 from '../assets/beatmaps/preserved-valkyria/beatmap.json';
-import Money from "../money";
+import beatmap3Audio from '../assets/beatmaps/resurrection-spell/shortened.mp3';
+// import beatmap3Audio from '../assets/sounds/Shoot1.mp3';
+import beatmap3 from '../assets/beatmaps/resurrection-spell/beatmap.json';
+import Money from "../Money";
 import Text from "../sprites/ui/Text";
+import RhythmScene from "./RhythmScene";
 
 export default class GameScene extends Phaser.Scene {
     static waves = [
         {
-            delay: 500,
+            delay: 6000,
             beatmap: beatmap2,
             beatmapAudio: beatmap2Audio,
-            enemySpeed: 500
+            enemySpeed: 70
         },
         {
-            delay: 5500,
-            beatmap: beatmapSample,
-            beatmapAudio: beatmapSampleAudio,
-            enemySpeed: 50
+            delay: 5000,
+            beatmap: beatmap3,
+            beatmapAudio: beatmap3Audio,
+            enemySpeed: 80
         },
         {
-            delay: 4500,
+            delay: 4000,
             beatmap: beatmapSample,
             beatmapAudio: beatmapSampleAudio,
-            enemySpeed: 75
+            enemySpeed: 90
         },
         {
             delay: 3000,
@@ -41,6 +45,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     preload() {
+        console.log('GameScene preload()');
 
     }
 
@@ -64,10 +69,15 @@ export default class GameScene extends Phaser.Scene {
     }
 
     create() {
+        console.log('GameScene create()');
         this.reset();
         this.createAnimations();
         this.setupBackground();
         this.money = new Money(this);
+        this.backgroundMusic = this.sound.add('audio-background', {
+            volume: 0.2
+        });
+        this.backgroundMusic.play();
 
         this.deathParticles = new DeathParticles(this);
         this.add.existing(this.deathParticles);
@@ -88,10 +98,10 @@ export default class GameScene extends Phaser.Scene {
             1000, 370
         ])
 
-        const debugGraphics = this.add.graphics();
-        debugGraphics.lineStyle(2, 0x333333, 1);
+        // const debugGraphics = this.add.graphics();
+        // debugGraphics.lineStyle(2, 0x333333, 1);
 
-        this.path.draw(debugGraphics, 64);
+        // this.path.draw(debugGraphics, 64);
 
         this.healthText = this.add.existing(new Text(this, 40, 20, '', {fontSize: '24px'}));
         this.waveText = this.add.existing(new Text(this, 40, 700, 'Wave: 0', {fontSize: '24px'}));
@@ -158,24 +168,27 @@ export default class GameScene extends Phaser.Scene {
     onStartWaveClicked () {
         if (!this.waveActive) {
             this.waveSettings = GameScene.waves[this.wave++];
+            console.log(this.waveSettings)
             this.waveActive = true;
+            this.scene.add('RhythmScene', RhythmScene, false);
             this.scene.launch('RhythmScene', {
                 waveSettings: this.waveSettings,
                 money: this.money
             });
-            this.scene.get('RhythmScene').events.on('onGameStarted', this.onWaveStarted, this)
-            this.scene.get('RhythmScene').events.on('onGameEnded', this.onWaveEnded, this)
+            this.scene.get('RhythmScene').events.once('onGameStarted', this.onWaveStarted, this)
+            this.scene.get('RhythmScene').events.once('onGameEnded', this.onWaveEnded, this)
             this.tweens.add({
                 targets: [this.btnStartWave, this.btnStartWave.text],
                 alpha: 0,
                 duration: 100
             })
             // Close any open dropdowns
-            this.events.emit('closeLists');
+            //this.events.emit('closeLists');
         }
     }
 
     onWaveStarted(length) {
+        this.backgroundMusic.stop();
         this.waveStartTime = this.time.now;
         this.waveLength = length;
         this.waveTimerActive = true;
@@ -192,7 +205,7 @@ export default class GameScene extends Phaser.Scene {
             alpha: 1,
             duration: 500
         })
-        this.scene.stop('RhythmScene');
+        this.backgroundMusic.play();
     }
 
     addEnemy(){

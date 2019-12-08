@@ -1,5 +1,6 @@
 import Text from "../sprites/ui/Text";
 import Button from "../sprites/ui/Button";
+import GameScene from "./GameScene";
 
 export default class GameOverScene extends Phaser.Scene {
     constructor() {
@@ -11,6 +12,7 @@ export default class GameOverScene extends Phaser.Scene {
 
     create()
     {
+        this.scene.bringToTop(this);
         const background = this.add.graphics({
             fillStyle: {
                 color: 0x000000,
@@ -36,6 +38,8 @@ export default class GameOverScene extends Phaser.Scene {
     }
 
     onRestartClicked () {
+        this.scene.remove('GameScene');
+        this.scene.add('GameScene', GameScene, false);
         this.scene.start('GameScene');
     }
 }

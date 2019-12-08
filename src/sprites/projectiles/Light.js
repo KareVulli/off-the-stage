@@ -21,6 +21,9 @@ export default class Light extends Phaser.GameObjects.Image {
         this.body.setSize(1, 1, true);
         this.body.velocity.x *= this.speed;
         this.body.velocity.y *= this.speed;
+        this.scene.sound.play('audio-fire1', {
+            volume: 0.2
+        });
         this.scene.time.addEvent({
             delay: 500,
             callback: () => {
@@ -39,7 +42,7 @@ export default class Light extends Phaser.GameObjects.Image {
     particleDeath() {
         if (!this.emitter.getAliveParticleCount()) {
             this.particles.destroy();
-            console.log('ParticlesManager destroyed!')
+            // console.log('ParticlesManager destroyed!')
         }
     }
 }
