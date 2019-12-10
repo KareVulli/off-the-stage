@@ -1,18 +1,18 @@
 import BaseWeapon from "./weapons/BaseWeapon";
 import List from "./ui/List";
+import SmokeWeapon from "./weapons/SmokeWeapon";
 
-export default class WeaponSlot extends Phaser.GameObjects.Graphics {
+export default class WeaponSlot extends Phaser.GameObjects.Sprite {
     static weapons = [
-        BaseWeapon
+        BaseWeapon,
+        SmokeWeapon
     ]
     constructor(scene, x, y, enemiesGroup, money) {
-        super(scene, {x: x, y: y});
+        super(scene, x, y, 'sprite-weapon-slot');
         this.enemies = enemiesGroup;
         this.weapon = null;
         this.money = money;
         this.setInteractive({ 
-            hitArea: new Phaser.Geom.Circle(0, 0, 32),
-            hitAreaCallback: Phaser.Geom.Circle.Contains,
             useHandCursor: true
         });
 
@@ -67,8 +67,7 @@ export default class WeaponSlot extends Phaser.GameObjects.Graphics {
             },
             {
                 key: 'SELL',
-                title: 'Sell [not implemented]',
-                enabled: false
+                title: ''
             }
         ];
         return menuItems;
@@ -89,6 +88,10 @@ export default class WeaponSlot extends Phaser.GameObjects.Graphics {
                 enabled: this.money.getMoney() >= nextUpgrade.price
             })
         }
+        this.upgradeMenu.updateItem('SELL', {
+            key: 'SELL',
+            title: `Sell for ${this.weapon.constructor.getBuyPrice() * 0.75} $`
+        })
     }
 
     onMouseUp () {
@@ -101,24 +104,15 @@ export default class WeaponSlot extends Phaser.GameObjects.Graphics {
     }
 
     onMouseDown() {
-        this.clear();
-        this.fillStyle(0x555555, 1);
-        this.lineStyle(2, 0xffffff, 1);
-        this.fillCircle(0, 0, 32);
+        this.setFrame(2, false, false);
     }
 
     onOver() {
-        this.clear();
-        this.fillStyle(0x888888, 1);
-        this.lineStyle(2, 0xffffff, 1);
-        this.fillCircle(0, 0, 32);
+        this.setFrame(1, false, false);
     }
 
     onOut() {       
-        this.clear();
-        this.fillStyle(0x111111, 1);
-        this.lineStyle(2, 0xffffff, 1);
-        this.fillCircle(0, 0, 32);
+        this.setFrame(0, false, false);
     }
 
     update(time, delta) {
@@ -126,27 +120,41 @@ export default class WeaponSlot extends Phaser.GameObjects.Graphics {
     }
 
     onWeaponSelected(item) {
-        switch (item.key) {
-            case 'WEAPON_LIGHT':
-                this.setWeapon()
-                break;
-            default:
-                console.log('Invalid weapon');
-                break;
+        for (let i = 0; i < WeaponSlot.weapons.length; i++) {
+            const weapon = WeaponSlot.weapons[i];
+            if (item.key === weapon.key) {
+                this.setWeapon(weapon)
+                this.weaponMenu.close();
+                return;
+            }
         }
+        console.log('Invalid weapon');
         this.weaponMenu.close();
     }
 
-    onUpgradeWeapon () {
-        this.weapon.upgrade(this.money);
-        this.updateUpgradeMenuItem();
-        // this.upgradeMenu.close();
+    onUpgradeWeapon (item) {
+        if (item.key === 'SELL') {
+            this.sellWeapon();
+            // this.upgradeMenu.close();
+        } else {
+            this.weapon.upgrade(this.money);
+            this.updateUpgradeMenuItem();
+            // this.upgradeMenu.close();
+        }
     }
 
-    setWeapon () {
+    setWeapon (weapon) {
         console.log('setWeapon()');
-        this.money.use(BaseWeapon.getBuyPrice());
-        this.weapon = this.scene.add.existing(new BaseWeapon(this.scene, this.x, this.y, this.enemies));
+        this.money.use(weapon.getBuyPrice());
+        this.weapon = this.scene.add.existing(new weapon(this.scene, this.x, this.y, this.enemies));
         this.updateUpgradeMenuItem();
+    }
+
+    sellWeapon () {
+        console.log('sellWeapon()');
+        this.money.add(this.weapon.constructor.getBuyPrice() * 0.75);
+        this.weapon.destroy();
+        this.weapon = null;
+        this.upgradeMenu.close();
     }
 }

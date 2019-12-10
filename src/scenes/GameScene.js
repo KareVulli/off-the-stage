@@ -16,17 +16,17 @@ import RhythmScene from "./RhythmScene";
 export default class GameScene extends Phaser.Scene {
     static waves = [
         {
-            delay: 6000,
+            delay: 5000,
             beatmap: beatmap2,
             beatmapAudio: beatmap2Audio,
-            enemySpeed: 70
+            enemySpeed: 60
         },
         {
             delay: 5000,
             beatmap: beatmap3,
             beatmapAudio: beatmap3Audio,
             enemySpeed: 80
-        },
+        }/* ,
         {
             delay: 4000,
             beatmap: beatmapSample,
@@ -38,7 +38,7 @@ export default class GameScene extends Phaser.Scene {
             beatmap: beatmapSample,
             beatmapAudio: beatmapSampleAudio,
             enemySpeed: 100
-        }
+        } */
     ]
     constructor() {
         super({key: 'GameScene'});
@@ -91,25 +91,27 @@ export default class GameScene extends Phaser.Scene {
         console.log('hello');
 
         this.path = new Phaser.Curves.Spline([
-            -50, 350,
-            300, 350, 
-            500, 300, 
-            800, 400, 
+            -50, 370,
+            270, 390, 
+            500, 340, 
+            800, 430, 
             1000, 370
         ])
 
-        // const debugGraphics = this.add.graphics();
-        // debugGraphics.lineStyle(2, 0x333333, 1);
-
-        // this.path.draw(debugGraphics, 64);
+        /* const debugGraphics = this.add.graphics();
+        debugGraphics.lineStyle(2, 0x333333, 1);
+        this.path.draw(debugGraphics, 64); */
 
         this.healthText = this.add.existing(new Text(this, 40, 20, '', {fontSize: '24px'}));
         this.waveText = this.add.existing(new Text(this, 40, 700, 'Wave: 0', {fontSize: '24px'}));
         this.updateLivesCounter();
 
-        this.add.existing(new WeaponSlot(this, 800, 270, this.enemies, this.money));
-        this.add.existing(new WeaponSlot(this, 500, 430, this.enemies, this.money));
-        this.add.existing(new WeaponSlot(this, 250, 250, this.enemies, this.money));
+        this.add.existing(new WeaponSlot(this, 750, 320, this.enemies, this.money));
+        this.add.existing(new WeaponSlot(this, 700, 500, this.enemies, this.money));
+        this.add.existing(new WeaponSlot(this, 500, 420, this.enemies, this.money));
+        this.add.existing(new WeaponSlot(this, 400, 300, this.enemies, this.money));
+        this.add.existing(new WeaponSlot(this, 250, 310, this.enemies, this.money));
+        this.add.existing(new WeaponSlot(this, 250, 480, this.enemies, this.money));
 
         this.btnStartWave = new Button(this, 1200, 700, 'Start performance');
         this.btnStartWave.on('pointerup', this.onStartWaveClicked, this);
@@ -200,12 +202,17 @@ export default class GameScene extends Phaser.Scene {
     }
 
     onWaveEnded() {
-        this.tweens.add({
-            targets: [this.btnStartWave, this.btnStartWave.text],
-            alpha: 1,
-            duration: 500
-        })
-        this.backgroundMusic.play();
+        if (this.wave == GameScene.waves.length) {
+            this.scene.launch('GameOverScene', {won: true});
+            this.scene.pause();
+        } else {
+            this.tweens.add({
+                targets: [this.btnStartWave, this.btnStartWave.text],
+                alpha: 1,
+                duration: 500
+            })
+            this.backgroundMusic.play();
+        }
     }
 
     addEnemy(){

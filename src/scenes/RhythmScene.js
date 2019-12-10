@@ -1,15 +1,28 @@
-import backgroundImage from '../assets/rhythm-background.png';
-import noteImage from '../assets/rhythm-note.png';
-import activeNoteImage from '../assets/rhythm-note-active.png';
-import hitSound from '../assets/sounds/HitSound.mp3';
-import hitSound2 from '../assets/sounds/HitSound2.mp3';
-import generateHitLine from "../graphics/HitLine";
 import Note, { NOTE_MISSED, NOTE_HIT, NOTE_ADD_COMBO } from '../sprites/notes/Note';
 import Key from '../sprites/Key';
 import Text from '../sprites/ui/Text';
 import SliderNote from '../sprites/notes/SliderNote';
 
 export default class RhythmScene extends Phaser.Scene {
+    static keyBinds = [
+        {
+            name: 'D',
+            code: Phaser.Input.Keyboard.KeyCodes.D
+        },
+        {
+            name: 'F',
+            code: Phaser.Input.Keyboard.KeyCodes.F
+        },
+        {
+            name: 'J',
+            code: Phaser.Input.Keyboard.KeyCodes.J
+        },
+        {
+            name: 'K',
+            code: Phaser.Input.Keyboard.KeyCodes.K
+        }
+    ];
+
     constructor() {
         super({key: 'RhythmScene'});
         this.timeframe = 1000;
@@ -30,14 +43,8 @@ export default class RhythmScene extends Phaser.Scene {
     preload() {
         console.log('RhythmScene preload()');
         console.log(this.waveSettings);
-        generateHitLine(this);
-        this.load.image('image-rhythm-background', backgroundImage);
-        this.load.image('image-rhythm-note', noteImage);
-        this.load.image('image-rhythm-active-note', activeNoteImage);
         this.load.json('json-beatmap', this.waveSettings.beatmap);
         this.load.audio('audio-beatmap', this.waveSettings.beatmapAudio);
-        this.load.audio('audio-hitsound', hitSound);
-        this.load.audio('audio-hitsound2', hitSound2);
     }
 
     create() {
@@ -83,13 +90,11 @@ export default class RhythmScene extends Phaser.Scene {
 
         this.keys = [];
         this.keySprites = [];
-        this.keys.push(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D));
-        this.keys.push(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F));
-        this.keys.push(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.J));
-        this.keys.push(this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.K));
-
+        
         for (let i = 0; i < 4; i++) {
-            const key = new Key(this, i);
+            const bind = RhythmScene.keyBinds[i];
+            this.keys.push(this.input.keyboard.addKey(bind.code));
+            const key = new Key(this, i, bind.name);
             this.keySprites.push(key);
             this.add.existing(key);
         }

@@ -7,21 +7,39 @@ export default class GameOverScene extends Phaser.Scene {
         super({key: 'GameOverScene'});
     }
 
+    init(data) {
+        console.log('GameOverScene init()');
+        this.win = data.won ? true : false
+    }
+
     preload() {
     }
 
     create()
     {
         this.scene.bringToTop(this);
-        const background = this.add.graphics({
-            fillStyle: {
-                color: 0x000000,
-                alpha: 1
-            }
-        })
+        let background;
+
+        if (this.win) {
+            background = this.add.graphics({
+                fillStyle: {
+                    color: 0x00cc03,
+                    alpha: 0.9
+                }
+            })
+            this.gameOverText = new Text(this, 1366 / 2, 768 / 2, 'You managed to defeat all the crazy fans. Good job!');
+        } else {
+            background = this.add.graphics({
+                fillStyle: {
+                    color: 0x000000,
+                    alpha: 1
+                }
+            })
+            this.gameOverText = new Text(this, 1366 / 2, 768 / 2, 'Game over, the fans reached the stage!');
+        }
+        
         background.fillRect(0, 0, 1366, 768);
         
-        this.gameOverText = new Text(this, 1366 / 2, 768 / 2, 'Game over, the fans reached the stage!');
         this.gameOverText.setOrigin(0.5, 0.5);
         this.gameOverText.setFontSize(20);
         this.add.existing(this.gameOverText);

@@ -3,10 +3,14 @@ import Healthbar from "../graphics/Healthbar";
 export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, speed = 50, health = 100, x = 0, y = 0) {
         super(scene, x, y, 'sprite-enemy');
+        this.baseSpeed = speed;
         this.speed = speed;
         this.hp = new Healthbar(scene, x, y, health);
-        
+        scene.physics.world.enable(this);
+        this.body.setSize(40, 50, true);
+
         this.anims.play('enemy-walk');
+        this.slowTimer = null;
     }
 
     followPath(path, resolution = 64) {
@@ -73,6 +77,20 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
             return true;
         }
         return false;
+    }
+
+    slow(factor, time) {
+        this.speed = this.baseSpeed - (this.baseSpeed * factor);
+        if (this.slowTimer) {
+            this.slowTimer.remove();
+        }
+        this.slowTimer = this.scene.time.delayedCall(time, this.resetSpeed, [], this);
+    }
+
+    resetSpeed() {
+        console.log('Reset slowness');
+        this.speed = this.baseSpeed;
+        this.slowTimer = null;
     }
 
     destroy (fromScene) {

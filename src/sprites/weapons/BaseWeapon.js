@@ -10,11 +10,15 @@ export default class BaseWeapon extends Phaser.GameObjects.Sprite {
     ]
     static key = 'WEAPON_LIGHT';
     static name = 'Stage light';
+    static projectile = Light;
+    static sprite = 'sprite-weapon';
     static getBuyPrice () {
         return this.upgrades[0].price;
     }
+
     constructor(scene, x, y, enemiesGroup) {
-        super(scene, x, y, 'sprite-weapon');
+        super(scene, x, y, '');
+        this.setTexture(this.constructor.sprite);
         scene.updates.add(this);
         this.fireRate = 0;
         this.damage = 0;
@@ -24,7 +28,7 @@ export default class BaseWeapon extends Phaser.GameObjects.Sprite {
         this.enemies = enemiesGroup;
         this.level = 0;
 
-        this.projectile = Light;
+        this.projectile = this.constructor.projectile;
         this.projectiles = scene.physics.add.group({
             classType: this.projectile,
             allowGravity: false
@@ -48,9 +52,7 @@ export default class BaseWeapon extends Phaser.GameObjects.Sprite {
         if (this.level < this.constructor.upgrades.length) {
             let newUpgrade = this.constructor.upgrades[this.level];
             if (!money || money.use(newUpgrade.price)) {
-                this.damage = newUpgrade.damage;
-                this.fireRate = newUpgrade.firerate;
-                this.range = newUpgrade.range;
+                this.onUpgrade(newUpgrade);
                 this.zone.setSize(this.range * 2, this.range * 2);
                 this.zone.body.setCircle(this.range);
                 this.level++;
@@ -59,6 +61,12 @@ export default class BaseWeapon extends Phaser.GameObjects.Sprite {
                 console.log('Not enough money to upgrade to level ' + this.level)
             }
         }
+    }
+
+    onUpgrade(newUpgrade) {
+        this.damage = newUpgrade.damage;
+        this.fireRate = newUpgrade.firerate;
+        this.range = newUpgrade.range;
     }
 
     getNextUpgrade () {
@@ -84,7 +92,7 @@ export default class BaseWeapon extends Phaser.GameObjects.Sprite {
 
     fire () {
         console.log('FIRE');
-        const projectile = new Light(this.scene, this.x, this.y);
+        const projectile = new this.projectile(this.scene, this.x, this.y);
         this.scene.add.existing(projectile);
         this.projectiles.add(projectile);
         projectile.fire(this.rotation);
