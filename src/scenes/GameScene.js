@@ -75,7 +75,8 @@ export default class GameScene extends Phaser.Scene {
         this.setupBackground();
         this.money = new Money(this);
         this.backgroundMusic = this.sound.add('audio-background', {
-            volume: 0.2
+            volume: 0.2,
+            loop: true
         });
         this.backgroundMusic.play();
 

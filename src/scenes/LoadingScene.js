@@ -4,6 +4,7 @@ import generateButton from "../graphics/Button";
 import enemyImage from "../assets/enemy.png";
 import lightImage from "../assets/light.png";
 import smokeImage from "../assets/smoke-puff.png";
+import waveImage from "../assets/wave.png";
 import bloodImage from "../assets/blood-splat.png";
 import backgroundImage from "../assets/background/background-no-lights.png";
 import backgroundCharacterImage from "../assets/background/background-character.png";
@@ -59,6 +60,7 @@ export default class LoadingScene extends Phaser.Scene {
         this.load.image('particle-light', lightImage);
         this.load.image('particle-smoke', smokeImage);
         this.load.image('particle-blood', bloodImage);
+        this.load.image('particle-wave', waveImage);
         this.load.image('image-background', backgroundImage);
         this.load.image('image-background-lights-red', backgroundLightsRedImage);
         this.load.image('image-background-lights-green', backgroundLightsGreenImage);

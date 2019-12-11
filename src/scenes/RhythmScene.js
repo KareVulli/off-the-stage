@@ -106,6 +106,14 @@ export default class RhythmScene extends Phaser.Scene {
         this.comboText.setOrigin(0.5, 0.5);
         this.add.existing(this.comboText);
 
+        this.powerUpText = new Text(this, 1197, 450);
+        this.powerUpText.setFontSize('16px');
+        this.powerUpText.setAlign('center');
+        this.powerUpText.setColor('#00ff0c');
+        this.powerUpText.setOrigin(0.5, 0.5);
+        this.powerUpText.setAlpha(0);
+        this.add.existing(this.powerUpText);
+
         this.scene.get('GameScene').events.once('onWaveLost', this.onWaveLost, this);
     }
 
@@ -150,6 +158,28 @@ export default class RhythmScene extends Phaser.Scene {
         return this.music.seek * 1000;
     }
 
+    showPowerUpText(message, time) {
+        this.powerUpText.setText(message);
+        this.powerUpText.setY(450)
+        this.tweens.add({
+            targets: this.powerUpText,
+            alpha: 1,
+            duration: 100
+        });
+        if (this.powerUpTextTween) {
+            this.powerUpTextTween.remove()
+        }
+        this.powerUpTextTween = this.tweens.add({
+            targets: this.powerUpText,
+            alpha: 0,
+            y: '-=30,',
+            delay: time,
+            duration: 300,
+            onComplete: () => {this.powerUpTextTween = null},
+            callbackScope: this
+        });
+    }
+
     onHit(note) {
         this.combo += 1;
         note.sprite.onHit();
@@ -160,7 +190,11 @@ export default class RhythmScene extends Phaser.Scene {
             scale: {from: 1.2, to: 1},
             duration: 100
         });
-        this.money.add(Math.floor(0.05 * this.combo));
+        this.money.add(Phaser.Math.Clamp(Math.floor(0.05 * this.combo), 1, 5));
+        if (this.combo % 25 == 0) {
+            this.scene.get('GameScene').events.emit('DoubleFireRate');
+            this.showPowerUpText('+ Double Fire Rate', 5000);
+        }
         console.log('onHit');
     }
 

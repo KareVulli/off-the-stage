@@ -46,6 +46,23 @@ export default class BaseWeapon extends Phaser.GameObjects.Sprite {
         debugGraphics.lineStyle(2, 0xaaaaaa, 1);
         debugGraphics.strokeCircle(this.x, this.y, this.range) */
         this.upgrade();
+
+        this.scene.events.on('DoubleFireRate', this.onDoubleFireRate, this);
+    }
+
+    onDoubleFireRate() {
+        console.log('onDoubleFireRate()');
+        this.fireRate = this.constructor.upgrades[this.level-1].firerate / 2;
+        if (this.doubleFireRateResetTimer) {
+            this.doubleFireRateResetTimer.remove()
+        }
+        this.doubleFireRateResetTimer = this.scene.time.delayedCall(5000, this.onDoubleFireRateReset, [], this);
+    }
+
+    onDoubleFireRateReset() {
+        console.log('onDoubleFireRateReset()');
+        this.fireRate = this.constructor.upgrades[this.level-1].firerate;
+        this.doubleFireRateResetTimer = null;
     }
 
     upgrade (money) {

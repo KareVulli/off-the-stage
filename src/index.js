@@ -7,13 +7,13 @@ import GameOverScene from "./scenes/GameOverScene";
 
 const config = {
     type: Phaser.WEBGL,
-    parent: "phaser-example",
+    parent: "phaser",
     width: 1366,
     height: 768,
     physics: {
         default: 'arcade',
         arcade: {
-            debug: false,
+            debug: true,
             gravity: { y: 200 }
         }
     },

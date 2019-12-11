@@ -1,11 +1,13 @@
-import BaseWeapon from "./weapons/BaseWeapon";
 import List from "./ui/List";
+import LightWeapon from "./weapons/LightWeapon";
 import SmokeWeapon from "./weapons/SmokeWeapon";
+import SpeakerWeapon from "./weapons/SpeakerWeapon";
 
 export default class WeaponSlot extends Phaser.GameObjects.Sprite {
     static weapons = [
-        BaseWeapon,
-        SmokeWeapon
+        LightWeapon,
+        SmokeWeapon,
+        SpeakerWeapon
     ]
     constructor(scene, x, y, enemiesGroup, money) {
         super(scene, x, y, 'sprite-weapon-slot');

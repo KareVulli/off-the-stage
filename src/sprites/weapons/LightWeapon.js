@@ -1,8 +1,9 @@
+import BaseWeapon from "./BaseWeapon";
 import Light from "../projectiles/Light";
 
 export default class LightWeapon extends BaseWeapon {
     static upgrades = [
-        {damage: 10, firerate: 600, range: 100, price: 300}, // initial buy price
+        {damage: 10, firerate: 700, range: 100, price: 300}, // initial buy price
         {damage: 15, firerate: 600, range: 110, price: 100},
         {damage: 20, firerate: 500, range: 120, price: 100},
         {damage: 25, firerate: 500, range: 130, price: 200},
