@@ -113,12 +113,13 @@ export default class GameScene extends Phaser.Scene {
 
         this.healthText = this.add.existing(new Text(this, 40, 20, '', {fontSize: '24px'}));
         this.waveText = this.add.existing(new Text(this, 40, 700, 'Wave: 0', {fontSize: '24px'}));
+        this.helpText = this.add.existing(new Text(this, 40, 630, 'Start by placing down some tools to keep crazy fans from running to the stage.\nWhen you think you\'re ready, you can start performing.', {fontSize: '16px'}));
+        
         this.updateLivesCounter();
 
         this.add.existing(new WeaponSlot(this, 750, 320, this.enemies, this.money, 90));
         this.add.existing(new WeaponSlot(this, 700, 500, this.enemies, this.money, -90));
         this.add.existing(new WeaponSlot(this, 500, 420, this.enemies, this.money, -90));
-        this.add.existing(new WeaponSlot(this, 400, 300, this.enemies, this.money, 90));
         this.add.existing(new WeaponSlot(this, 250, 310, this.enemies, this.money, 90));
         this.add.existing(new WeaponSlot(this, 250, 480, this.enemies, this.money, -90));
 
@@ -179,6 +180,12 @@ export default class GameScene extends Phaser.Scene {
 
     onStartWaveClicked () {
         if (!this.waveActive) {
+            this.helpText.setText('Remember that you can upgrade or buy new weapons also during the performace.')
+            this.tweens.add({
+                targets: this.helpText,
+                alpha: 0,
+                delay: 7000
+            });
             this.waveSettings = GameScene.waves[this.wave++];
             console.log(this.waveSettings)
             this.waveActive = true;
