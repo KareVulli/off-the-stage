@@ -1,9 +1,11 @@
 import Enemy from "../sprites/Enemy";
 import WeaponSlot from "../sprites/WeaponSlot";
 import DeathParticles from "../particles/DeathParticles";
-import Button from "../sprites/ui/Button";
+import Button from "../sprites/ui/Button";/* 
 import beatmapSampleAudio from '../assets/beatmaps/sample/audio.mp3';
-import beatmapSample from '../assets/beatmaps/sample/beatmap.json';
+import beatmapSample from '../assets/beatmaps/sample/beatmap.json'; */
+import beatmap1Audio from '../assets/beatmaps/meanwhile-in-rio/audio.mp3';
+import beatmap1 from '../assets/beatmaps/meanwhile-in-rio/beatmap.json';
 import beatmap2Audio from '../assets/beatmaps/preserved-valkyria/audio.mp3';
 import beatmap2 from '../assets/beatmaps/preserved-valkyria/beatmap.json';
 import beatmap3Audio from '../assets/beatmaps/resurrection-spell/shortened.mp3';
@@ -17,27 +19,32 @@ export default class GameScene extends Phaser.Scene {
     static waves = [
         {
             delay: 5000,
-            beatmap: beatmap2,
-            beatmapAudio: beatmap2Audio,
-            enemySpeed: 60
+            beatmap: beatmap1,
+            beatmapAudio: beatmap1Audio,
+            enemySpeed: 60,
+            enemyHealth: 100
         },
         {
             delay: 5000,
+            enemySpeed: 80,
             beatmap: beatmap3,
             beatmapAudio: beatmap3Audio,
-            enemySpeed: 80
-        }/* ,
-        {
-            delay: 4000,
-            beatmap: beatmapSample,
-            beatmapAudio: beatmapSampleAudio,
-            enemySpeed: 90
+            enemyHealth: 150
         },
         {
+            delay: 4000,
+            random: 2000, // TODO: 
+            beatmap: beatmap2,
+            beatmapAudio: beatmap2Audio,
+            enemySpeed: 90,
+            enemyHealth: 150
+        }
+        /* {
             delay: 3000,
             beatmap: beatmapSample,
             beatmapAudio: beatmapSampleAudio,
-            enemySpeed: 100
+            enemySpeed: 100,
+            enemyHealth: 150
         } */
     ]
     constructor() {
@@ -52,8 +59,8 @@ export default class GameScene extends Phaser.Scene {
     createAnimations () {
         this.anims.create({
             key: 'enemy-walk',
-            frames: this.anims.generateFrameNumbers('sprite-enemy', { start: 0, end: 1 }),
-            frameRate: 3,
+            frames: this.anims.generateFrameNumbers('sprite-enemy', { start: 0, end: 7 }),
+            frameRate: 6,
             repeat: -1
         });
     }
@@ -69,6 +76,7 @@ export default class GameScene extends Phaser.Scene {
     }
 
     create() {
+        this.cameras.main.fadeIn(600, 0, 0, 0);
         console.log('GameScene create()');
         this.reset();
         this.createAnimations();
@@ -107,15 +115,16 @@ export default class GameScene extends Phaser.Scene {
         this.waveText = this.add.existing(new Text(this, 40, 700, 'Wave: 0', {fontSize: '24px'}));
         this.updateLivesCounter();
 
-        this.add.existing(new WeaponSlot(this, 750, 320, this.enemies, this.money));
-        this.add.existing(new WeaponSlot(this, 700, 500, this.enemies, this.money));
-        this.add.existing(new WeaponSlot(this, 500, 420, this.enemies, this.money));
-        this.add.existing(new WeaponSlot(this, 400, 300, this.enemies, this.money));
-        this.add.existing(new WeaponSlot(this, 250, 310, this.enemies, this.money));
-        this.add.existing(new WeaponSlot(this, 250, 480, this.enemies, this.money));
+        this.add.existing(new WeaponSlot(this, 750, 320, this.enemies, this.money, 90));
+        this.add.existing(new WeaponSlot(this, 700, 500, this.enemies, this.money, -90));
+        this.add.existing(new WeaponSlot(this, 500, 420, this.enemies, this.money, -90));
+        this.add.existing(new WeaponSlot(this, 400, 300, this.enemies, this.money, 90));
+        this.add.existing(new WeaponSlot(this, 250, 310, this.enemies, this.money, 90));
+        this.add.existing(new WeaponSlot(this, 250, 480, this.enemies, this.money, -90));
 
         this.btnStartWave = new Button(this, 1200, 700, 'Start performance');
         this.btnStartWave.on('pointerup', this.onStartWaveClicked, this);
+        this.btnStartWave.setDepth(1);
         this.add.existing(this.btnStartWave);
 
         // weaponSlot.setWeapon();
@@ -217,14 +226,14 @@ export default class GameScene extends Phaser.Scene {
     }
 
     addEnemy(){
-        const enemy = new Enemy(this, this.waveSettings.enemySpeed);
+        const enemy = new Enemy(this, this.waveSettings.enemySpeed, this.waveSettings.enemyHealth);
         this.enemies.add(enemy);
         this.add.existing(enemy);
         enemy.followPath(this.path);
         enemy.once('onReachedEnd', this.onEnemyPassed, this);
         enemy.once('onKilled', this.onEnemyKilled, this);
         // console.log(`${this.time.now - this.waveStartTime} > ${this.waveLength} - 10000`)
-        if (this.time.now - this.waveStartTime < this.waveLength - 30000) {
+        if (this.time.now - this.waveStartTime < this.waveLength - 10000) {
             // console.log('timed event created');
             this.waveTimer = this.time.addEvent({
                 delay: this.waveSettings.delay,

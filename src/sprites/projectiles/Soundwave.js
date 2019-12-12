@@ -1,7 +1,7 @@
 import Light from "./Light";
 
 export default class Smoke extends Phaser.GameObjects.Image {
-    constructor(scene, x, y, size = 50, speed = 5, lifetime = 3000) {
+    constructor(scene, x, y, size = 50, speed = 5, lifetime = 1500) {
         super(scene, x, y, 'sprite-light');
         scene.physics.world.enable(this);
         this.size = size;

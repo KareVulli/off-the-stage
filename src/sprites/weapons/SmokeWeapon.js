@@ -12,10 +12,33 @@ export default class SmokeWeapon extends BaseWeapon {
     static key = 'WEAPON_SMOKE';
     static name = 'Smoke machine';
     static projectile = Smoke;
-    static sprite = 'image-rhythm-note';
+    static sprite = 'sprite-smoke';
     
     constructor(scene, x, y, enemiesGroup) {
         super(scene, x, y, enemiesGroup);
+        this.setScale(0.65);
+    }
+
+    setWeaponRotation(angle) {
+        if (angle < -120) {
+            this.setFrame(5)
+            this.setDepth(1)
+        } else if (angle < -60) {
+            this.setFrame(4)
+            this.setDepth(1)
+        } else if (angle < 0) {
+            this.setFrame(0)
+            this.setDepth(1)
+        } else if (angle < 60) {
+            this.setFrame(2)
+            this.setDepth(0)
+        } else if (angle < 120) {
+            this.setFrame(1)
+            this.setDepth(0)
+        } else {
+            this.setFrame(3)
+            this.setDepth(0)
+        }
     }
 
     onUpgrade(newUpgrade) {

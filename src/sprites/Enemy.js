@@ -11,6 +11,11 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
 
         this.anims.play('enemy-walk');
         this.slowTimer = null;
+        this.updateAnimSpeed();
+    }
+
+    updateAnimSpeed() {
+        this.anims.msPerFrame = 1000 / (this.speed / 8);
     }
 
     followPath(path, resolution = 64) {
@@ -85,15 +90,20 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
             this.slowTimer.remove();
         }
         this.slowTimer = this.scene.time.delayedCall(time, this.resetSpeed, [], this);
+        this.updateAnimSpeed();
     }
 
     resetSpeed() {
         console.log('Reset slowness');
         this.speed = this.baseSpeed;
         this.slowTimer = null;
+        this.updateAnimSpeed();
     }
 
     destroy (fromScene) {
+        if (this.slowTimer) {
+            this.slowTimer.remove();
+        }
         if (this.moveTimer) {
             this.moveTimer.remove();
         }

@@ -63,17 +63,35 @@ export default class RhythmScene extends Phaser.Scene {
             onComplete: this.onFadedIn,
             onCompleteScope: this
         });
+
+
         this.hitLine = this.add.image(1048, 718, 'sprite-hit-line');
         this.hitLine.setOrigin(0, 0.5);
         this.hitLine.setDepth(1);
         this.beatmap = this.cache.json.get('json-beatmap');
         this.notes = [[],[],[],[]];
 
+        
+        this.title = new Text(this, 1000, 700, `${this.beatmap.artist} - ${this.beatmap.name}`, {fontSize: '24px'})
+        this.add.existing(this.title);
+        this.title.setOrigin(1, 0);
+        this.tweens.add({
+            targets: this.title,
+            alpha: {from: 0, to: 1},
+            x: '-=25',
+            duration: 500,
+            ease: 'Quad',
+            hold: 3000,
+            yoyo: true
+        });
+
         this.notesGroup = this.add.group({
             runChildUpdate: true
         });
 
-        this.music = this.sound.add('audio-beatmap');
+        this.music = this.sound.add('audio-beatmap', {
+            volume: 0.8
+        });
         this.music.on('complete', this.onMusicComplete, this);
         for (let i = 0; i < this.beatmap.notes.length; i++) {
             const note = this.beatmap.notes[i];

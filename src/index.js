@@ -3,6 +3,7 @@ import PhaserUpdatePlugin from 'phaser-plugin-update'
 import LoadingScene from "./scenes/LoadingScene";
 import GameScene from "./scenes/GameScene";
 import RhythmScene from "./scenes/RhythmScene";
+import MenuScene from "./scenes/MenuScene";
 import GameOverScene from "./scenes/GameOverScene";
 
 const config = {
@@ -13,12 +14,13 @@ const config = {
     physics: {
         default: 'arcade',
         arcade: {
-            debug: true,
+            debug: false,
             gravity: { y: 200 }
         }
     },
     scene: [
         LoadingScene,
+        MenuScene,
         GameScene,
         GameOverScene
     ],

@@ -1,7 +1,7 @@
 import Light from "./Light";
 
 export default class Smoke extends Phaser.GameObjects.Image {
-    constructor(scene, x, y, size = 80, speed = 1.5, lifetime = 3000) {
+    constructor(scene, x, y, size = 80, speed = 3, lifetime = 2000) {
         super(scene, x, y, 'sprite-light');
         scene.physics.world.enable(this);
         this.size = size;
@@ -12,7 +12,7 @@ export default class Smoke extends Phaser.GameObjects.Image {
         this.particles = scene.add.particles('particle-smoke');
 
         this.emitter = this.particles.createEmitter({
-            lifespan: 2000,
+            lifespan: 1000,
             scale: { start: 1, end: 5 },
             alpha: { start: 0.7, end: 0 },
             speedX: {min: -2, max: 2},

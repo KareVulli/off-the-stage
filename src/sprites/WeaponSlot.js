@@ -9,7 +9,7 @@ export default class WeaponSlot extends Phaser.GameObjects.Sprite {
         SmokeWeapon,
         SpeakerWeapon
     ]
-    constructor(scene, x, y, enemiesGroup, money) {
+    constructor(scene, x, y, enemiesGroup, money, defaultAngle = 50) {
         super(scene, x, y, 'sprite-weapon-slot');
         this.enemies = enemiesGroup;
         this.weapon = null;
@@ -17,6 +17,7 @@ export default class WeaponSlot extends Phaser.GameObjects.Sprite {
         this.setInteractive({ 
             useHandCursor: true
         });
+        this.defaultAngle = defaultAngle;
 
         this.money.events.on('moneyUsed', this.onMoneyChanged, this);
         this.money.events.on('moneyAdded', this.onMoneyChanged, this);
@@ -111,10 +112,16 @@ export default class WeaponSlot extends Phaser.GameObjects.Sprite {
 
     onOver() {
         this.setFrame(1, false, false);
+        if(this.weapon) {
+            this.weapon.onOver()
+        }
     }
 
     onOut() {       
         this.setFrame(0, false, false);
+        if(this.weapon) {
+            this.weapon.onOut()
+        }
     }
 
     update(time, delta) {
@@ -149,7 +156,9 @@ export default class WeaponSlot extends Phaser.GameObjects.Sprite {
         console.log('setWeapon()');
         this.money.use(weapon.getBuyPrice());
         this.weapon = this.scene.add.existing(new weapon(this.scene, this.x, this.y, this.enemies));
+        this.weapon.setWeaponRotation(this.defaultAngle);
         this.updateUpgradeMenuItem();
+        this.setAlpha(0.001); // HACK;
     }
 
     sellWeapon () {
@@ -158,5 +167,6 @@ export default class WeaponSlot extends Phaser.GameObjects.Sprite {
         this.weapon.destroy();
         this.weapon = null;
         this.upgradeMenu.close();
+        this.setAlpha(1);
     }
 }

@@ -12,7 +12,7 @@ export default class List extends Phaser.GameObjects.Container {
         }
 
         this.addItems(items);
-        this.setDepth(1);
+        this.setDepth(2);
 
         scene.events.on('listShown', this.onListShown, this);
         scene.events.on('closeLists', this.onCloseLists, this);

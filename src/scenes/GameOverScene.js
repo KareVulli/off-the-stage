@@ -48,6 +48,10 @@ export default class GameOverScene extends Phaser.Scene {
         this.btnRestart.on('pointerup', this.onRestartClicked, this);
         this.add.existing(this.btnRestart);
 
+        this.btnMenu = new Button(this, 1366 / 2, 550, 'Back to menu');
+        this.btnMenu.on('pointerup', this.onMenuClicked, this);
+        this.add.existing(this.btnMenu);
+
         this.add.tween({
             targets: [background, this.gameOverText, this.btnRestart],
             alpha: {from: 0, to: 1},
@@ -59,5 +63,11 @@ export default class GameOverScene extends Phaser.Scene {
         this.scene.remove('GameScene');
         this.scene.add('GameScene', GameScene, false);
         this.scene.start('GameScene');
+    }
+
+    onMenuClicked () {
+        this.scene.remove('GameScene');
+        this.scene.add('GameScene', GameScene, false);
+        this.scene.start('MenuScene');
     }
 }

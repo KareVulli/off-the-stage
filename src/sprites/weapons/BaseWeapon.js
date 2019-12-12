@@ -47,7 +47,16 @@ export default class BaseWeapon extends Phaser.GameObjects.Sprite {
         debugGraphics.strokeCircle(this.x, this.y, this.range) */
         this.upgrade();
 
+        this.areaGraphics = this.scene.add.graphics({
+            x: this.x,
+            y: this.y
+        });
+
         this.scene.events.on('DoubleFireRate', this.onDoubleFireRate, this);
+    }
+
+    setWeaponRotation(angle) {
+
     }
 
     onDoubleFireRate() {
@@ -107,23 +116,37 @@ export default class BaseWeapon extends Phaser.GameObjects.Sprite {
         this.targets.push(enemy);
     }
 
-    fire () {
-        console.log('FIRE');
+    onOver() {
+        this.areaGraphics.fillStyle(0x000000, 0.5);
+        this.areaGraphics.fillCircle(0, 0, this.range);
+    }
+
+    onOut() {
+        this.areaGraphics.clear();
+    }
+
+    fire (angle) {
+        console.log('FIRE direction', angle);
         const projectile = new this.projectile(this.scene, this.x, this.y);
         this.scene.add.existing(projectile);
         this.projectiles.add(projectile);
-        projectile.fire(this.rotation);
+        projectile.fire(angle);
     }
 
     update(time, delta) {
         if (this.targets.length) {
             const angle = Phaser.Math.Angle.Between(this.x, this.y, this.targets[0].x, this.targets[0].y);
-            this.setRotation(angle);
+            this.setWeaponRotation(Phaser.Math.RadToDeg(angle));
             if (this.lastFired + this.fireRate < time) {
                 this.lastFired = time;
-                this.fire();
+                this.fire(angle);
             }
         }
         this.targets = [];
+    }
+
+    destroy() {
+        this.scene.events.off('DoubleFireRate', this.onDoubleFireRate, this);
+        super.destroy()
     }
 }

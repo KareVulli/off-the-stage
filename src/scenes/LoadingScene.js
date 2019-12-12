@@ -1,11 +1,14 @@
 import generateWeaponSlot from "../graphics/WeaponSlot";
 import generateLight from "../graphics/Light";
 import generateButton from "../graphics/Button";
-import enemyImage from "../assets/enemy.png";
+import enemyImage from "../assets/crazy-fan.png";
 import lightImage from "../assets/light.png";
 import smokeImage from "../assets/smoke-puff.png";
 import waveImage from "../assets/wave.png";
 import bloodImage from "../assets/blood-splat.png";
+import speakerImage from "../assets/speakers.png";
+import smokeWeaponImage from "../assets/smoke-machine.png";
+import lightWeaponImage from "../assets/stage-light.png";
 import backgroundImage from "../assets/background/background-no-lights.png";
 import backgroundCharacterImage from "../assets/background/background-character.png";
 import backgroundLightsRedImage from "../assets/background/background-lights-red.png";
@@ -19,6 +22,9 @@ import fire1Sound from '../assets/sounds/Shoot1.mp3';
 import fire2Sound from '../assets/sounds/Shoot2.mp3';
 import fire3Sound from '../assets/sounds/Shoot3.mp3';
 import backgroundSound from '../assets/sounds/chillSong.mp3';
+
+// MenuScene
+import menuBackgroundImage from '../assets/menu.png';
 
 // RythmScene
 import rythmBackgroundImage from '../assets/rhythm-background.png';
@@ -66,8 +72,12 @@ export default class LoadingScene extends Phaser.Scene {
         this.load.image('image-background-lights-green', backgroundLightsGreenImage);
         this.load.image('image-background-lights-blue', backgroundLightsBlueImage);
         this.load.image('image-background-character', backgroundCharacterImage);
-        this.load.spritesheet('sprite-enemy', enemyImage, { frameWidth: 75, frameHeight: 100 });
+        this.load.spritesheet('sprite-enemy', enemyImage, { frameWidth: 100, frameHeight: 100 });
         this.load.spritesheet('sprite-weapon-slot', weaponSlotButton, { frameWidth: 64, frameHeight: 64 });
+        this.load.spritesheet('sprite-speaker', speakerImage, { frameWidth: 100, frameHeight: 100 });
+        this.load.spritesheet('sprite-smoke', smokeWeaponImage, { frameWidth: 120, frameHeight: 80 });
+        this.load.spritesheet('sprite-stage-light', lightWeaponImage, { frameWidth: 80, frameHeight: 100 });
+        
 
         this.load.audio('audio-death', death1Sound);
         this.load.audio('audio-death2', death2Sound);
@@ -75,6 +85,9 @@ export default class LoadingScene extends Phaser.Scene {
         this.load.audio('audio-fire2', fire2Sound);
         this.load.audio('audio-fire3', fire3Sound);
         this.load.audio('audio-background', backgroundSound);
+
+        // MenuScene:
+        this.load.image('image-menu-background', menuBackgroundImage);
 
         // RythmScene:
         this.load.audio('audio-hitsound', hitSound);
@@ -97,7 +110,7 @@ export default class LoadingScene extends Phaser.Scene {
             active: () =>
             {
                 this.progressText.setText('Starting...');
-                this.scene.start('GameScene');
+                this.scene.start('MenuScene');
             }
         });
     }
