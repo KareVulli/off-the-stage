@@ -79,7 +79,7 @@ export default class LoadingScene extends Phaser.Scene {
         this.load.image('image-background-character', backgroundCharacterImage);
         this.load.spritesheet('sprite-enemy', enemyImage, { frameWidth: 100, frameHeight: 100 });
         this.load.spritesheet('sprite-weapon-slot', weaponSlotButton, { frameWidth: 64, frameHeight: 64 });
-        this.load.spritesheet('sprite-speaker', speakerImage, { frameWidth: 100, frameHeight: 100 });
+        this.load.spritesheet('sprite-speaker', speakerImage, { frameWidth: 100, frameHeight: 110 });
         this.load.spritesheet('sprite-smoke', smokeWeaponImage, { frameWidth: 120, frameHeight: 90 });
         this.load.spritesheet('sprite-stage-light', lightWeaponImage, { frameWidth: 80, frameHeight: 110 });
         
