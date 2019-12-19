@@ -1,8 +1,9 @@
 import Light from "./Light";
 
 export default class Smoke extends Phaser.GameObjects.Image {
-    constructor(scene, x, y, size = 80, speed = 3, lifetime = 2000) {
+    constructor(scene, x, y, SFXVolume, size = 80, speed = 3, lifetime = 2000) {
         super(scene, x, y, 'sprite-light');
+        this.SFXVolume = SFXVolume;
         scene.physics.world.enable(this);
         this.size = size;
         this.lifetime = lifetime;
@@ -32,7 +33,7 @@ export default class Smoke extends Phaser.GameObjects.Image {
         this.body.velocity.x *= this.speed;
         this.body.velocity.y *= this.speed;
         this.scene.sound.play('audio-fire2', {
-            volume: 0.2
+            volume: this.SFXVolume / 2
         });
         this.scene.time.addEvent({
             delay: this.lifetime,

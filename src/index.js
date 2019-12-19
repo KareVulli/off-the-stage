@@ -5,6 +5,8 @@ import GameScene from "./scenes/GameScene";
 import RhythmScene from "./scenes/RhythmScene";
 import MenuScene from "./scenes/MenuScene";
 import GameOverScene from "./scenes/GameOverScene";
+import OptionsScene from "./scenes/OptionsScene";
+import SliderPlugin from './plugins/slider/slider-plugin.js';
 
 const config = {
     type: Phaser.WEBGL,
@@ -18,14 +20,24 @@ const config = {
             gravity: { y: 200 }
         }
     },
+    scale: {
+        mode: Phaser.Scale.FIT,
+        autoCenter: Phaser.Scale.CENTER_BOTH,
+    },
     scene: [
         LoadingScene,
         MenuScene,
         GameScene,
-        GameOverScene
+        GameOverScene,
+        OptionsScene
     ],
     plugins: {
-        scene: [{ key: 'updatePlugin', plugin: PhaserUpdatePlugin, mapping: 'updates' }]
+        scene: [{ key: 'updatePlugin', plugin: PhaserUpdatePlugin, mapping: 'updates' }],
+        global: [{
+            key: 'rexSlider',
+            plugin: SliderPlugin,
+            start: true
+        }]
     }
 };
 

@@ -1,5 +1,13 @@
 import NoteSlider from "./NoteSlider";
-import Note, { NOTE_NORMAL, NOTE_MISSED, NOTE_ADD_COMBO, NOTE_HIT } from "./Note";
+import Note, { 
+    NOTE_NORMAL,
+    NOTE_MISSED,
+    NOTE_ADD_COMBO,
+    NOTE_HIT,
+    ACCURACY_PERFECT,
+    ACCURACY_GOOD,
+    ACCURACY_MEH
+} from "./Note";
 import NoteHead from "./NoteHead";
 
 const STATE_NORMAL = 0;
@@ -7,8 +15,9 @@ const STATE_SLIDING = 1;
 const STATE_RELEASED = 2;
 
 export default class SliderNote extends Note {
-    constructor(scene, note, timeframe, music) {
+    constructor(scene, note, timeframe, music, hitsoundVolume) {
         super(scene, note, timeframe, music);
+        this.hitsoundVolume = hitsoundVolume;
         const length = note.endTime - note.time;
         this.noteHeight = this.endHeight * (length / timeframe);
         this.slider = new NoteSlider(scene, 60, this.noteHeight);
@@ -30,29 +39,49 @@ export default class SliderNote extends Note {
         }
     }
 
-    check(songTime, badHitWindow, keyDown, keyUp) {
+    check(songTime, badHitWindow, keyDown, keyUp, goodHitWindow, perfectHitWindow) {
         if (this.state === STATE_NORMAL && songTime - badHitWindow > this.note.time) {
             console.log('Too late');
-            return NOTE_MISSED;
+            return [NOTE_MISSED];
         } else if (this.state === STATE_NORMAL && keyDown && songTime + badHitWindow > this.note.time) {
-            console.log('Hit');
+            console.log('Hit. delta from perfect: ', this.note.time - songTime);
             this.state = STATE_SLIDING;
-            return NOTE_ADD_COMBO;
+            const delta = Math.abs(this.note.time - songTime);
+            let acc;
+            if (delta <= perfectHitWindow) {
+                acc = ACCURACY_PERFECT
+            } else if (delta <= goodHitWindow) {
+                acc = ACCURACY_GOOD
+            } else {
+                acc = ACCURACY_MEH
+            }
+            return [NOTE_ADD_COMBO, acc];
         } else if (this.state === STATE_SLIDING && keyUp) {
             this.state = STATE_RELEASED;
             if (songTime + badHitWindow > this.note.endTime) {
-                console.log('Release Hit');
-                this.scene.sound.play('audio-hitsound');
-                return NOTE_HIT;
+                this.scene.sound.play('audio-hitsound2', {
+                    volume: this.hitsoundVolume
+                });
+                const delta = Math.abs(this.note.endTime - songTime);
+                console.log('Release Hit. delta from perfect: ', delta);
+                let acc;
+                if (delta <= perfectHitWindow) {
+                    acc = ACCURACY_PERFECT
+                } else if (delta <= goodHitWindow) {
+                    acc = ACCURACY_GOOD
+                } else {
+                    acc = ACCURACY_MEH
+                }
+                return [NOTE_HIT, acc];
             }
             console.log('Released too early');
-            return NOTE_MISSED;
+            return [NOTE_MISSED];
         } else if (this.state === STATE_SLIDING && songTime - badHitWindow > this.note.endTime) {
             console.log('Released too late');
             this.state = STATE_RELEASED;
-            return NOTE_MISSED;
+            return [NOTE_MISSED];
         }
-        return NOTE_NORMAL;
+        return [NOTE_NORMAL];
     }
 
     onHit() {

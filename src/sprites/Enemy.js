@@ -3,6 +3,7 @@ import Healthbar from "../graphics/Healthbar";
 export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     constructor(scene, speed = 50, health = 100, x = 0, y = 0) {
         super(scene, x, y, 'sprite-enemy');
+        this.SFXVolume = localStorage.getItem('sfx-volume');
         this.baseSpeed = speed;
         this.speed = speed;
         this.hp = new Healthbar(scene, x, y, health);
@@ -78,7 +79,9 @@ export default class Enemy extends Phaser.Physics.Arcade.Sprite {
     damage(damage) {        
         if (this.hp.decrease(damage)) {
             this.emit('onKilled', this);
-            this.scene.sound.play('audio-death' + (Math.random() > 0.5 ? '2' : ''));
+            this.scene.sound.play('audio-death' + (Math.random() > 0.5 ? '2' : ''), {
+                volume: this.SFXVolume
+            });
             return true;
         }
         return false;

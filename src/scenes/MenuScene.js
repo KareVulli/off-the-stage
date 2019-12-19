@@ -19,9 +19,9 @@ export default class MenuScene extends Phaser.Scene {
         this.btnStart.on('pointerup', this.onStart, this);
         this.add.existing(this.btnStart);
 
-        /* this.btnHelp = new Button(this, 1366 / 2, 600, 'Guide');
+        this.btnHelp = new Button(this, 1366 / 2, 600, 'Options');
         this.btnHelp.on('pointerup', this.onHelp, this);
-        this.add.existing(this.btnHelp); */
+        this.add.existing(this.btnHelp);
     }
 
     onStart() {
@@ -33,6 +33,10 @@ export default class MenuScene extends Phaser.Scene {
     }
 
     onHelp() {
-        
+        this.cameras.main.fadeOut(200, 0, 0, 0, (camera, progress) => {
+            if (progress === 1) {
+                this.scene.start('OptionsScene');
+            }
+        }, this);
     }
 }

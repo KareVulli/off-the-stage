@@ -97,4 +97,11 @@ export default class List extends Phaser.GameObjects.Container {
     update(time, delta) {
 
     }
+
+    destroy(fromScene) {
+        console.log('List destroy()');
+        this.scene.events.off('listShown', this.onListShown, this);
+        this.scene.events.off('closeLists', this.onCloseLists, this);
+        super.destroy(fromScene);
+    }
 }

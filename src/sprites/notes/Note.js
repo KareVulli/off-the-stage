@@ -6,6 +6,10 @@ export const NOTE_HIT = 2;
 export const NOTE_MISSED = 1;
 export const NOTE_NORMAL = 0;
 
+export const ACCURACY_PERFECT = 0;
+export const ACCURACY_GOOD = 1;
+export const ACCURACY_MEH = 2;
+
 export default class Note extends Phaser.GameObjects.Container {
     constructor(scene, note, timeframe, music) {
         super(scene, 1366 - ((72 + 3) * (4 - note.note)) + 18, 0);
@@ -32,18 +36,25 @@ export default class Note extends Phaser.GameObjects.Container {
         }
     }
 
-    check(songTime, badHitWindow, keyDown) {
+    check(songTime, badHitWindow, keyDown, keyUp, goodHitWindow, perfectHitWindow) {
         if (songTime - badHitWindow > this.note.time) {
-            console.log(`${songTime} - ${this.badHitWindow} > ${this.note.time}`)
-            console.log('Miss')
-            return NOTE_MISSED;
+            return [NOTE_MISSED];
         } else if (keyDown) {
             if (songTime + badHitWindow > this.note.time) {
-                console.log('Hit')
-                return NOTE_HIT;
+                const delta = Math.abs(this.note.time - songTime);
+                let acc;
+                if (delta <= perfectHitWindow) {
+                    acc = ACCURACY_PERFECT
+                } else if (delta <= goodHitWindow) {
+                    acc = ACCURACY_GOOD
+                } else {
+                    acc = ACCURACY_MEH
+                }
+                console.log('Hit. delta from perfect: ', delta, acc)
+                return [NOTE_HIT, acc];
             }
         }
-        return NOTE_NORMAL;
+        return [NOTE_NORMAL];
     }
 
     onHit() {

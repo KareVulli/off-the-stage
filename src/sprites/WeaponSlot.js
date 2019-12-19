@@ -38,6 +38,10 @@ export default class WeaponSlot extends Phaser.GameObjects.Sprite {
 
     }
 
+    destroy(fromScene) {
+        super.destroy(fromScene);
+    }
+
     onMoneyChanged() {
         if (this.weapon === null) {
             this.weaponMenu.updateItems(this.buildWeaponMenu());

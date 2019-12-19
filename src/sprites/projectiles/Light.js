@@ -1,8 +1,9 @@
 export default class Light extends Phaser.GameObjects.Image {
-    constructor(scene, x, y) {
+    constructor(scene, x, y, SFXVolume) {
         super(scene, x, y, 'sprite-light');
         scene.physics.world.enable(this);
         this.speed = 2;
+        this.SFXVolume = SFXVolume;
 
         this.particles = scene.add.particles('particle-light');
 
@@ -22,7 +23,7 @@ export default class Light extends Phaser.GameObjects.Image {
         this.body.velocity.x *= this.speed;
         this.body.velocity.y *= this.speed;
         this.scene.sound.play('audio-fire1', {
-            volume: 0.2
+            volume: this.SFXVolume / 2
         });
         this.scene.time.addEvent({
             delay: 500,

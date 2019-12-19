@@ -59,15 +59,15 @@ export default class GameOverScene extends Phaser.Scene {
         })
     }
 
-    onRestartClicked () {
+    onRestartClicked () {/* 
         this.scene.remove('GameScene');
-        this.scene.add('GameScene', GameScene, false);
+        this.scene.add('GameScene', GameScene, false); */
         this.scene.start('GameScene');
     }
 
     onMenuClicked () {
-        this.scene.remove('GameScene');
-        this.scene.add('GameScene', GameScene, false);
+        /* this.scene.remove('GameScene');
+        this.scene.add('GameScene', GameScene, false); */
         this.scene.start('MenuScene');
     }
 }

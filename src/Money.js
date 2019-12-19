@@ -2,7 +2,7 @@ export default class Money {
     constructor(scene, startMoney = 600) {
         this.scene = scene;
         this.money = startMoney;
-        this.events = this.scene.events;
+        this.events = new Phaser.Events.EventEmitter();
     }
 
     getMoney() {

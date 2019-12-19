@@ -22,14 +22,14 @@ export default class GameScene extends Phaser.Scene {
             beatmap: beatmap1,
             beatmapAudio: beatmap1Audio,
             enemySpeed: 60,
-            enemyHealth: 100
+            enemyHealth: 80
         },
         {
             delay: 5000,
             enemySpeed: 80,
             beatmap: beatmap3,
             beatmapAudio: beatmap3Audio,
-            enemyHealth: 150
+            enemyHealth: 130
         },
         {
             delay: 4000,
@@ -49,6 +49,7 @@ export default class GameScene extends Phaser.Scene {
     ]
     constructor() {
         super({key: 'GameScene'});
+        console.log('GameScene constructor');
     }
 
     preload() {
@@ -76,6 +77,9 @@ export default class GameScene extends Phaser.Scene {
     }
 
     create() {
+        this.musicVolume = localStorage.getItem('music-volume');
+        this.SFXVolume = localStorage.getItem('sfx-volume');
+
         this.cameras.main.fadeIn(600, 0, 0, 0);
         console.log('GameScene create()');
         this.reset();
@@ -83,7 +87,7 @@ export default class GameScene extends Phaser.Scene {
         this.setupBackground();
         this.money = new Money(this);
         this.backgroundMusic = this.sound.add('audio-background', {
-            volume: 0.2,
+            volume: this.musicVolume / 2,
             loop: true
         });
         this.backgroundMusic.play();
@@ -128,7 +132,14 @@ export default class GameScene extends Phaser.Scene {
         this.btnStartWave.setDepth(1);
         this.add.existing(this.btnStartWave);
 
+        this.events.on('ExtraHealth', this.addLife, this);
+
         // weaponSlot.setWeapon();
+        this.input.keyboard.on('keydown_ESC', (event) => {
+            this.events.emit('onGameStopped');
+            this.backgroundMusic.stop();
+            this.scene.start('MenuScene');
+        }, this)
     }
 
     
@@ -232,6 +243,10 @@ export default class GameScene extends Phaser.Scene {
         }
     }
 
+    addLife() {
+        this.lives += 1;
+    }
+
     addEnemy(){
         const enemy = new Enemy(this, this.waveSettings.enemySpeed, this.waveSettings.enemyHealth);
         this.enemies.add(enemy);
@@ -257,10 +272,13 @@ export default class GameScene extends Phaser.Scene {
         this.updateLivesCounter();
         this.updateWaveStatus();
         this.enemies.remove(enemy, true, true);
-        if(this.lives <= 0) {
+        if (this.lives <= 0) {
             this.events.emit('onWaveLost');
             this.scene.launch('GameOverScene');
             this.scene.pause();
+        } else {
+            this.cameras.main.fadeEffect.alpha = 0.5;
+            this.cameras.main.fadeIn(1000, 255, 100, 100);
         }
     }
 

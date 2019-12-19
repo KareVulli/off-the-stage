@@ -18,6 +18,7 @@ export default class BaseWeapon extends Phaser.GameObjects.Sprite {
 
     constructor(scene, x, y, enemiesGroup) {
         super(scene, x, y, '');
+        this.SFXVolume = localStorage.getItem('sfx-volume');
         this.setTexture(this.constructor.sprite);
         scene.updates.add(this);
         this.fireRate = 0;
@@ -117,6 +118,7 @@ export default class BaseWeapon extends Phaser.GameObjects.Sprite {
     }
 
     onOver() {
+        this.areaGraphics.clear();
         this.areaGraphics.fillStyle(0x000000, 0.5);
         this.areaGraphics.fillCircle(0, 0, this.range);
     }
@@ -127,7 +129,7 @@ export default class BaseWeapon extends Phaser.GameObjects.Sprite {
 
     fire (angle) {
         console.log('FIRE direction', angle);
-        const projectile = new this.projectile(this.scene, this.x, this.y);
+        const projectile = new this.projectile(this.scene, this.x, this.y, this.SFXVolume);
         this.scene.add.existing(projectile);
         this.projectiles.add(projectile);
         projectile.fire(angle);
@@ -145,8 +147,11 @@ export default class BaseWeapon extends Phaser.GameObjects.Sprite {
         this.targets = [];
     }
 
-    destroy() {
-        this.scene.events.off('DoubleFireRate', this.onDoubleFireRate, this);
-        super.destroy()
+    destroy(fromScene) {
+        console.log('BaseWeapon destroy()')
+        if (this.scene) {
+            this.scene.events.off('DoubleFireRate', this.onDoubleFireRate, this);
+        }
+        super.destroy(fromScene);
     }
 }

@@ -1,6 +1,8 @@
 import generateWeaponSlot from "../graphics/WeaponSlot";
 import generateLight from "../graphics/Light";
 import generateButton from "../graphics/Button";
+import generateSliderTrack from "../graphics/SliderTrack";
+import generateSliderHead from "../graphics/SliderHead";
 import enemyImage from "../assets/crazy-fan.png";
 import lightImage from "../assets/light.png";
 import smokeImage from "../assets/smoke-puff.png";
@@ -32,6 +34,7 @@ import noteImage from '../assets/rhythm-note.png';
 import activeNoteImage from '../assets/rhythm-note-active.png';
 import hitSound from '../assets/sounds/HitSound.mp3';
 import hitSound2 from '../assets/sounds/HitSound2.mp3';
+import hitSound3 from '../assets/sounds/HitSound3.wav';
 import generateHitLine from "../graphics/HitLine";
 
 export default class LoadingScene extends Phaser.Scene {
@@ -62,6 +65,8 @@ export default class LoadingScene extends Phaser.Scene {
         generateLight(this);
         generateButton(this);
         generateButton(this, 220, 35, 'list-item');
+        generateSliderTrack(this);
+        generateSliderHead(this);
         this.load.image('image-list-item-disabled', disabledButtonImage);
         this.load.image('particle-light', lightImage);
         this.load.image('particle-smoke', smokeImage);
@@ -75,8 +80,8 @@ export default class LoadingScene extends Phaser.Scene {
         this.load.spritesheet('sprite-enemy', enemyImage, { frameWidth: 100, frameHeight: 100 });
         this.load.spritesheet('sprite-weapon-slot', weaponSlotButton, { frameWidth: 64, frameHeight: 64 });
         this.load.spritesheet('sprite-speaker', speakerImage, { frameWidth: 100, frameHeight: 100 });
-        this.load.spritesheet('sprite-smoke', smokeWeaponImage, { frameWidth: 120, frameHeight: 80 });
-        this.load.spritesheet('sprite-stage-light', lightWeaponImage, { frameWidth: 80, frameHeight: 100 });
+        this.load.spritesheet('sprite-smoke', smokeWeaponImage, { frameWidth: 120, frameHeight: 90 });
+        this.load.spritesheet('sprite-stage-light', lightWeaponImage, { frameWidth: 80, frameHeight: 110 });
         
 
         this.load.audio('audio-death', death1Sound);
@@ -92,6 +97,7 @@ export default class LoadingScene extends Phaser.Scene {
         // RythmScene:
         this.load.audio('audio-hitsound', hitSound);
         this.load.audio('audio-hitsound2', hitSound2);
+        this.load.audio('audio-hitsound3', hitSound3);
         generateHitLine(this);
         this.load.image('image-rhythm-background', rythmBackgroundImage);
         this.load.image('image-rhythm-note', noteImage);
@@ -113,5 +119,22 @@ export default class LoadingScene extends Phaser.Scene {
                 this.scene.start('MenuScene');
             }
         });
+        this.progressText.setText('Loading settings...');
+        const musicVolume = localStorage.getItem('music-volume')
+        const SFXVolume = localStorage.getItem('sfx-volume')
+        const HitsoundsVolume = localStorage.getItem('hitsounds-volume')
+        if (musicVolume === null) {
+            console.log('Loading default value for music-volume')
+            localStorage.setItem('music-volume', 0.8)
+        }
+        if (SFXVolume === null) {
+            console.log('Loading default value for sfx-volume')
+            localStorage.setItem('sfx-volume', 0.4)
+        }
+        if (HitsoundsVolume === null) {
+            console.log('Loading default value for hitsounds-volume')
+            localStorage.setItem('hitsounds-volume', 0.5)
+        }
+        this.progressText.setText('Done');
     }
 }
