@@ -295,7 +295,7 @@ export default class GameScene extends Phaser.Scene {
 
     updateLivesCounter () {
         this.waveText.setText(`Wave ${this.wave} / ${GameScene.waves.length}`);
-        this.healthText.setText(`Lives: ${this.lives} | Money: ${this.money.getMoney()}`)
+        this.healthText.setText(`Lives: ${this.lives} | Money: ${this.money.getMoney()} | FPS: ${Math.round(1000/this.game.loop.delta)}`);
     }
 
     update(time, delta) {

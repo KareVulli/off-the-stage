@@ -24,6 +24,10 @@ const config = {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
+    fps: {
+        target: 1000,
+        forceSetTimeOut: true
+    },
     scene: [
         LoadingScene,
         MenuScene,
