@@ -25,7 +25,7 @@ const config = {
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     fps: {
-        target: 1000,
+        target: 500,
         forceSetTimeOut: true
     },
     scene: [
